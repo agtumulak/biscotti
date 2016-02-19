@@ -5,21 +5,19 @@
 
 // std includes
 #include <iostream>
+#include <map>
 
 // sn-solver includes
+#include "angledependent.hpp"
 #include "segment.hpp"
+#include "settings.hpp"
 
 class Cell
 {
     public:
 
         // Default constructor
-        Cell( const Segment &segment );
-
-        // Accessors and mutators //
-
-        // Return const reference to segment_
-        const Segment &SegmentReference() const { return segment_; };
+        Cell( const Settings &settings, const Segment &segment );
 
         // Friend functions //
 
@@ -28,8 +26,17 @@ class Cell
 
     private:
 
+        // Const reference to settings
+        const Settings &settings_;
+
         // Const reference to segment
         const Segment &segment_;
+
+        // Midpoint group angular flux
+        AngleDependent midflux_;
+
+        // Outgoing boundary group angular flux
+        AngleDependent outflux_;
 };
 
 // Friend functions //

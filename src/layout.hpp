@@ -10,6 +10,7 @@
 // sn-solver includes
 #include "cell.hpp"
 #include "segment.hpp"
+#include "settings.hpp"
 
 class Layout
 {
@@ -19,10 +20,10 @@ class Layout
         Layout();
 
         // Add segment to end
-        void AddToEnd( Material material, double width, unsigned int num_cells );
+        void AddToEnd( Material material, double width, unsigned int num_cells, double scl_flux_guess );
 
         // Generate cells for use with Slab object
-        std::vector<Cell> GenerateCells() const;
+        std::vector<Cell> GenerateCells( const Settings &settings ) const;
 
         // Overload operator<<()
         friend std::ostream &operator<< ( std::ostream &out, const Layout &obj );

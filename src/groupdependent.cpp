@@ -4,7 +4,7 @@
 // std includes
 #include <cassert>
 #include <map>
-// #include <numeric>
+#include <numeric>
 #include <vector>
 
 // sn-solver includes

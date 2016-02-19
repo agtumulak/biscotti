@@ -8,13 +8,16 @@
 #include "material.hpp"
 #include "layout.hpp"
 #include "settings.hpp"
+#include "slab.hpp"
 
 int main()
 {
     // Create settings //
     Settings settings_1;
+    settings_1.WriteKGuess( 1.0 );
     settings_1.WriteSeed( 10 );
     settings_1.WriteProgressPeriod( 100 );
+    settings_1.WriteQuadrature( Quadrature() );
 
     // Create moderator material mat_1 //
     Material mat_1;
@@ -66,9 +69,10 @@ int main()
 
     // Create layout //
     Layout layout_1;
-    layout_1.AddToEnd( mat_1, 50.0, 500 );
-    layout_1.AddToEnd( mat_2, 50.0, 500 );
+    layout_1.AddToEnd( mat_1, 50.0, 500, 1.0 );
+    layout_1.AddToEnd( mat_2, 50.0, 500, 1.0 );
 
-    // Test //
-    std::cout << layout_1 << std::endl;
+    // Create slab and run //
+    Slab slab_1( settings_1, layout_1 );
+    std::cout << slab_1 << std::endl;
 }

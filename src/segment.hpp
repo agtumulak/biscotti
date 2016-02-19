@@ -5,16 +5,19 @@
 
 // std includes
 #include <iostream>
+#include <map>
 
 // sn-solver includes
+#include "angledependent.hpp"
 #include "material.hpp"
+#include "settings.hpp"
 
 class Segment
 {
     public:
 
         // Default constructor
-        Segment( Material material, double width, int num_cells );
+        Segment( Material material, double width, int num_cells, double scl_flux_guess );
 
         // Accessors and mutators //
 
@@ -29,6 +32,9 @@ class Segment
 
         // Read cell width
         double CellWidth() const { return cell_width_; };
+
+        // Read scalar flux guess
+        double ScalarFluxGuess() const { return scl_flux_guess_; };
 
         // Friend functions //
 
@@ -48,6 +54,9 @@ class Segment
 
         // Cell width
         const double cell_width_;
+
+        // Scalar flux guess
+        double scl_flux_guess_;
 };
 
 // Friend functions //
