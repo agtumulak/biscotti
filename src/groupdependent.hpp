@@ -38,7 +38,7 @@ class GroupDependent
 
             // Const iterators to fastest and slowest group
             std::map<double,double>::const_iterator slowest() const { return data_.begin(); };
-            std::map<double,double>::const_iterator fastest() const { return data_.end(); };
+            std::map<double,double>::const_iterator fastest() const { return std::prev( data_.end() ); };
 
             // Friend functions //
             
