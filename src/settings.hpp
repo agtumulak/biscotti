@@ -7,9 +7,6 @@
 #include <iostream>
 #include <map>
 
-// sn-solver includes
-#include "quadrature.hpp"
-
 class Settings
 {
     public:
@@ -21,7 +18,15 @@ class Settings
 
         // Fundamental k eigenvalue guess
         void WriteKGuess( double k_guess ) { k_guess_ = k_guess; };
-        double KGuess() { return k_guess_; };
+        double KGuess() const { return k_guess_; };
+
+        // Fundamental k eigenvalue convergence tolernace
+        void WriteKTol( double k_tol ) { k_tol_ = k_tol; };
+        double KTol() const { return k_tol_; };
+
+        // Scalar flux convergence tolerance
+        void WriteSclFluxTol( double scl_flux_tol ) { scl_flux_tol_ = scl_flux_tol; };
+        double SclFluxTol() const { return scl_flux_tol_; };
 
         // Random number seed
         void WriteSeed( unsigned int seed ) { seed_ = seed; }; 
@@ -30,10 +35,6 @@ class Settings
         // Period of progress reports
         void WriteProgressPeriod( unsigned int period ) { progress_period_ = period; };
         unsigned int ProgressPeriod() const { return progress_period_; };
-
-        // Quadrature to use for ordinates
-        void WriteQuadrature( Quadrature quadrature ) { quadrature_ = quadrature; };
-        const Quadrature &QuadratureReference() const { return quadrature_; };
 
         // Friend functions //
  
@@ -45,14 +46,17 @@ class Settings
         // Fundamental k eigenvalue guess
         double k_guess_;
 
+        // Fundamental k eigenvalue convergence tolerance
+        double k_tol_;
+
+        // Scalar flux convergence tolerance
+        double scl_flux_tol_;
+
         // Random number seed
         unsigned int seed_;
 
         // Period of progress reports
         unsigned int progress_period_;
-
-        // Quadrature to use for ordinates
-        Quadrature quadrature_;
 };
 
 // Friend functions //

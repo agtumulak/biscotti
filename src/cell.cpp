@@ -6,15 +6,15 @@
 #include <vector>
 
 // sn-solver includes
-#include "angledependent.hpp"
+#include "angularflux.hpp"
 #include "cell.hpp"
 
 // Default constructor
 Cell::Cell( const Settings &settings, const Segment &segment ):
     settings_( settings ),
     segment_( segment ),
-    midflux_( AngleDependent( settings_.QuadratureReference(), segment_.ScalarFluxGuess() ) ),
-    outflux_( AngleDependent( settings_.QuadratureReference(), segment_.ScalarFluxGuess() ) )
+    midflux_( AngularFlux( segment_.MaterialReference().TotMacroXsec(), segment_.ScalarFluxGuess() ) ),
+    outflux_( AngularFlux( segment_.MaterialReference().TotMacroXsec(), segment_.ScalarFluxGuess() ) )
 {}
 
 // Friend functions //

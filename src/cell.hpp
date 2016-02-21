@@ -8,7 +8,7 @@
 #include <map>
 
 // sn-solver includes
-#include "angledependent.hpp"
+#include "angularflux.hpp"
 #include "segment.hpp"
 #include "settings.hpp"
 
@@ -33,10 +33,10 @@ class Cell
         const Segment &segment_;
 
         // Midpoint group angular flux
-        AngleDependent midflux_;
+        AngularFlux midflux_;
 
         // Outgoing boundary group angular flux
-        AngleDependent outflux_;
+        AngularFlux outflux_;
 };
 
 // Friend functions //

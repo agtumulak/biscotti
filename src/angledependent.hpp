@@ -7,18 +7,25 @@
 #include <iostream>
 #include <map>
 
-// sn-solver includes
-#include "quadrature.hpp"
-
 class AngleDependent
 {
     public:
 
         // Default constructor
-        AngleDependent( const Quadrature &quadrature, double init_scl_flux );
+        AngleDependent( double init_scl_flux );
+
+        // Friend functions //
+
+        // Overload operator<<()
+        friend std::ostream &operator<< ( std::ostream &out, const AngleDependent &obj );
 
     private:
 
         // Angular flux data
-        std::map<double,std::pair<double,double>>  data_;
+        std::map<double,std::pair<double,double>> data_;
 };
+
+// Friend functions //
+
+// Overload operator<<()
+std::ostream &operator<< ( std::ostream &out, const AngleDependent &obj );
