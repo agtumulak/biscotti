@@ -17,6 +17,9 @@ class GroupDependent
             // Initialize constructor
             GroupDependent( double energy, double value );
 
+            // Multiply each value by a scalar
+            void ScalarMultiply( double scalar );
+
             // Sum all values
             double GroupSum() const;
 
@@ -35,6 +38,10 @@ class GroupDependent
             double energyat( unsigned int index ) const;
 
             // Iterators //
+
+            // Iterators to fastest and slowest group
+            std::map<double,double>::iterator slowest() { return data_.begin(); };
+            std::map<double,double>::iterator fastest() { return std::prev( data_.end() ); };
 
             // Const iterators to fastest and slowest group
             std::map<double,double>::const_iterator slowest() const { return data_.begin(); };

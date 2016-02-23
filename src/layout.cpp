@@ -4,6 +4,7 @@
 // std includes
 #include <cassert>
 #include <iostream>
+#include <set>
 #include <vector>
 
 // sn-solver includes
@@ -36,6 +37,24 @@ std::vector<Cell> Layout::GenerateCells( const Settings &settings ) const
         }
     }
     return output;
+}
+
+// Generate energy groups to use in calculation
+std::set<double> Layout::GenerateEnergyGroups() const
+{
+    std::set<double> energy_groups;
+    // Iterate through each segment in layout
+    for( auto segment_it = data_.begin(); segment_it != data_.end(); segment_it++ )
+    {
+        // Iterate through each total cross section in segment
+        for( auto energy_it = segment_it->MaterialReference().TotMacroXsec().slowest();
+                energy_it != std::next( segment_it->MaterialReference().TotMacroXsec().fastest() );
+                energy_it++ )
+        {
+            energy_groups.insert( energy_it->first );
+        }
+    }
+    return energy_groups;
 }
 
 // Friend functions //

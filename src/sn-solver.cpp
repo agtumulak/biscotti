@@ -75,5 +75,5 @@ int main()
 
     // Create slab and run //
     Slab slab_1( settings_1, layout_1 );
-    std::cout << slab_1 << std::endl;
+    slab_1.Solve();
 }

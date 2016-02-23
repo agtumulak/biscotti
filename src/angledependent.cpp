@@ -2,24 +2,50 @@
 // Aaron G. Tumulak
 
 // std includes
+#include <algorithm>
 #include <cassert>
 #include <iostream>
 #include <map>
+#include <numeric>
 
 // sn-solver includes
 #include "angledependent.hpp"
 
 // Default constructor
-AngleDependent::AngleDependent( double init_scl_flux )
+AngleDependent::AngleDependent( double init_val )
 {
     std::initializer_list<std::initializer_list<double>> il;
     #include "quadrature.dsv"
     for( auto it = il.begin(); it != il.end(); it++ )
     {
         assert( it->size() == 2 );
-        data_[ *std::next( it->begin() ) ] = std::make_pair( *it->begin() , 0.5 * init_scl_flux );
+        data_[ *std::next( it->begin() ) ] = std::make_pair( *it->begin() , init_val );
     }
 }
+
+// Return scalar sum
+double AngleDependent::GetScalarSum() const
+{
+    return std::accumulate( data_.begin(), data_.end(), 0.0,
+            []( const double &x, const std::pair<double,std::pair<double,double>> &p )
+            {
+                return x + p.second.first * p.second.second;
+            } );
+}
+
+// Vacuum boundary (incoming on left side)
+void AngleDependent::LeftVacuumBoundary()
+{
+    std::for_each( pos_begin(), pos_end(),
+            []( std::pair<const double,std::pair<double,double>> &p )
+            {
+                p.second.second = 0.0;
+            } );
+}
+
+// Reflect boundary (reflecting on right side)
+void AngleDependent::RightReflectBoundary()
+{}
 
 // Friend functions //
 

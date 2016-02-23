@@ -19,6 +19,16 @@ GroupDependent::GroupDependent( double energy, double value ):
     data_( {{ energy, value }} )
 {}
 
+// Multiply each value by a scalar
+void GroupDependent::ScalarMultiply( double scalar )
+{
+    std::for_each( data_.begin(), data_.end(),
+            [scalar]( std::pair<const double,double> &p )
+            {
+                p.second = p.second * scalar;
+            } );
+}
+
 // Sum all values
 double GroupDependent::GroupSum() const
 {
@@ -44,10 +54,7 @@ double GroupDependent::at( double energy ) const
 void GroupDependent::Write( double energy, double value )
 {
     // Check input arguments are valid
-    assert( energy > 0.0 && value >= 0.0 );
-
-    // Do not allow overwriting
-    assert( data_.find( energy ) == data_.end() );
+    assert( energy > 0.0 );
 
     // Write new value at energy
     data_[ energy ] = value;
@@ -57,7 +64,7 @@ void GroupDependent::Write( double energy, double value )
 void GroupDependent::Add( double energy, double value )
 {
     // Check input arguments are valid
-    assert( energy > 0.0 && value >= 0.0 );
+    assert( energy > 0.0 );
 
     // Add value to energy
     data_[ energy ] += value;

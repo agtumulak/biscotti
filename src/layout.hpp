@@ -5,6 +5,7 @@
 
 // std includes
 #include <iostream>
+#include <set>
 #include <vector>
 
 // sn-solver includes
@@ -24,6 +25,9 @@ class Layout
 
         // Generate cells for use with Slab object
         std::vector<Cell> GenerateCells( const Settings &settings ) const;
+
+        // Generate energy groups to use in calculation
+        std::set<double> GenerateEnergyGroups() const;
 
         // Overload operator<<()
         friend std::ostream &operator<< ( std::ostream &out, const Layout &obj );

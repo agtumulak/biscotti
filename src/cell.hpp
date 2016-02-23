@@ -19,6 +19,14 @@ class Cell
         // Default constructor
         Cell( const Settings &settings, const Segment &segment );
 
+        // Check if scalar flux is converged
+        bool IsConverged() const;
+
+        // Vacuum boundary (incoming on left side)
+        void LeftVacuumBoundary() { out_angflux_.LeftVacuumBoundary(); };
+
+        // Reflect boundary (reflecting on right side)
+        void RightReflectBoundary( double energy ) { out_angflux_.RightReflectBoundary( energy ); };
         // Friend functions //
 
         // Overload operator<<()
@@ -33,10 +41,13 @@ class Cell
         const Segment &segment_;
 
         // Midpoint group angular flux
-        AngularFlux midflux_;
+        AngularFlux mid_angflux_;
 
         // Outgoing boundary group angular flux
-        AngularFlux outflux_;
+        AngularFlux out_angflux_;
+
+        // Previous midpoint scalar flux
+        GroupDependent prev_mid_sclflux_;
 };
 
 // Friend functions //
