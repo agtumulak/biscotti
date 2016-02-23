@@ -26,7 +26,7 @@ class Cell
         void LeftVacuumBoundary() { out_angflux_.LeftVacuumBoundary(); };
 
         // Reflect boundary (reflecting on right side)
-        void RightReflectBoundary( double energy ) { out_angflux_.RightReflectBoundary( energy ); };
+        void RightReflectBoundary() { out_angflux_.RightReflectBoundary(); };
         // Friend functions //
 
         // Overload operator<<()

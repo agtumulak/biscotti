@@ -21,7 +21,7 @@ class AngularFlux
         void LeftVacuumBoundary();
 
         // Reflect boundary (reflecting on right side)
-        void RightReflectBoundary( double energy );
+        void RightReflectBoundary();
 
         // Accessors and mutators //
 

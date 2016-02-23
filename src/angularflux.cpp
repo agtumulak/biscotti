@@ -33,7 +33,7 @@ void AngularFlux::LeftVacuumBoundary()
 }
 
 // Reflect boundary (reflecting on right side)
-void AngularFlux::RightReflectBoundary( double energy )
+void AngularFlux::RightReflectBoundary()
 {
     UpdateScalarFlux();
 }

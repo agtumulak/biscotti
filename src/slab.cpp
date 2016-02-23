@@ -38,29 +38,24 @@ void Slab::Solve()
         // Iterate while scalar flux is not converged
         while( !ScalarFluxConverged() )
         {
-            // Loop from highest energy group to slowest energy group
-            std::for_each( energy_groups_.rbegin(), energy_groups_.rend(),
-                    [&]( double energy )
-                    {
-                        SweepRight( energy );
-                        cells_.back().RightReflectBoundary( energy );
-                        SweepLeft( energy );
-                    } );
+            SweepRight();
+            cells_.back().RightReflectBoundary();
+            SweepLeft();
             std::exit( 1 );
         }
     }
 }
 
 // Sweep right
-void Slab::SweepRight( double energy )
+void Slab::SweepRight()
 {
-    std::cout << "Energy " << energy << " swept right" << std::endl;
+    std::cout << "Swept right" << std::endl;
 }
 
 // Sweep left
-void Slab::SweepLeft( double energy )
+void Slab::SweepLeft()
 {
-    std::cout << "Energy " << energy << " swept left" << std::endl;
+    std::cout << "Swept left" << std::endl;
 }
 
 // Check if scalar flux is converged

@@ -31,10 +31,10 @@ class Slab
     private:
 
         // Sweep right
-        void SweepRight( double energy );
+        void SweepRight();
 
         // Sweep left
-        void SweepLeft( double energy );
+        void SweepLeft();
 
         // Check if scalar flux is converged
         bool ScalarFluxConverged();
