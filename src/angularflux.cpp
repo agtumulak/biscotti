@@ -35,6 +35,11 @@ void AngularFlux::LeftVacuumBoundary()
 // Reflect boundary (reflecting on right side)
 void AngularFlux::RightReflectBoundary()
 {
+    std::for_each( data_.begin(), data_.end(),
+            []( std::pair<const double,AngleDependent> &p )
+            {
+                p.second.RightReflectBoundary();
+            } );
     UpdateScalarFlux();
 }
 

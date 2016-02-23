@@ -45,7 +45,16 @@ void AngleDependent::LeftVacuumBoundary()
 
 // Reflect boundary (reflecting on right side)
 void AngleDependent::RightReflectBoundary()
-{}
+{
+    typedef std::map<double,std::pair<double,double>>::iterator angflux_it;
+    typedef std::map<double,std::pair<double,double>>::const_reverse_iterator const_reverse_angflux_it;
+    angflux_it neg_it = data_.begin(); // Negative iterator moving positive
+    const_reverse_angflux_it pos_it = data_.rbegin(); // Positive iterator moving negative
+    for( ; neg_it != std::next( data_.begin(), data_.size() / 2 ); neg_it++, pos_it++ )
+    {
+        neg_it->second.second = pos_it->second.second;
+    }
+}
 
 // Friend functions //
 
