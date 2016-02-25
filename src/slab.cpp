@@ -49,7 +49,10 @@ void Slab::Solve()
 // Sweep right
 void Slab::SweepRight()
 {
-    std::cout << "Swept right" << std::endl;
+    for( auto cell_it = std::next( cells_.begin() ); cell_it != cells_.end(); cell_it++ )
+    {
+        cell_it->SweepRight( std::prev( cell_it )->OutgoingAngularFluxReference() );
+    }
 }
 
 // Sweep left

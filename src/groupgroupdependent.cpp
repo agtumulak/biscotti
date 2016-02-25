@@ -41,6 +41,16 @@ void GroupGroupDependent::Write( double energy_1, double energy_2, double value 
     }
 }
 
+// Write energy group
+void GroupGroupDependent::WriteGroup( double energy, const GroupDependent &value )
+{
+    // Check input arguments are valid
+    assert( energy > 0.0 );
+
+    // Add value to data
+    data_[ energy ] = value;
+}
+
 // Friend functions //
 
 // Overload operator<<()
@@ -59,4 +69,30 @@ std::ostream &operator<< ( std::ostream &out, const GroupGroupDependent &obj )
     out << std::defaultfloat;
 
     return out;
+}
+
+// Overload operator*() (matrix-vector multiplication)
+GroupDependent operator* ( const GroupGroupDependent &m, const GroupDependent &v )
+{
+    GroupDependent result;
+    // Loop through each groupdependent object (an outscatter vector)
+    auto m_it = m.slowest();
+    auto v_it = v.slowest();
+    for( ; m_it != m.fastest(); m_it++, v_it++ )
+    {
+        // Contribution to group dependent scalar flux from scalar flux at
+        // given energy v_it->first
+        result.GroupDependentAdd( m_it->second * v_it->second );
+    }
+    return result;
+}
+
+GroupGroupDependent operator* ( const GroupDependent &u, const GroupDependent &v )
+{
+    GroupGroupDependent result;
+    for( auto it = v.slowest(); it != v.fastest(); it++ )
+    {
+        result.WriteGroup( it->first, u * it->second );
+    }
+    return result;
 }

@@ -19,6 +19,16 @@ GroupDependent::GroupDependent( double energy, double value ):
     data_( {{ energy, value }} )
 {}
 
+// Element-wise addition of another GroupDependent value
+void GroupDependent::GroupDependentAdd( const GroupDependent &g )
+{
+    std::for_each( data_.begin(), data_.end(),
+            [&g]( std::pair<const double,double> &p )
+            {
+                p.second = p.second + g.at( p.first );
+            } );
+}
+
 // Multiply each value by a scalar
 void GroupDependent::ScalarMultiply( double scalar )
 {
@@ -95,4 +105,12 @@ std::ostream &operator<< ( std::ostream &out, const GroupDependent &obj )
     out << std::defaultfloat;
 
     return out;
+}
+
+// Overload operator*()
+GroupDependent operator* ( const GroupDependent &g, const double &d )
+{
+    GroupDependent result = g;
+    result.ScalarMultiply( d );
+    return result;
 }

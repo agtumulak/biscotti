@@ -25,6 +25,7 @@ class Material
         const GroupGroupDependent &MacroScatXsec() const { return macro_scat_xsec_; };
 
         void WriteMacroFissXsec( double energy, double value );
+        const GroupDependent &MacroFissXsec() const { return macro_fiss_xsec_; };
 
         void WriteFissNu( double value );
         double FissNu() const { return fiss_nu_; };

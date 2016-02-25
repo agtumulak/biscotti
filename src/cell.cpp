@@ -17,10 +17,13 @@ Cell::Cell( const Settings &settings, const Segment &segment ):
     segment_( segment ),
     mid_angflux_( AngularFlux( segment_.MaterialReference().TotMacroXsec(), segment_.ScalarFluxGuess() ) ),
     out_angflux_( AngularFlux( segment_.MaterialReference().TotMacroXsec(), segment_.ScalarFluxGuess() ) ),
-    prev_mid_sclflux_( mid_angflux_.ScalarFluxReference() )
+    prev_mid_sclflux_( mid_angflux_.ScalarFluxReference() * 10.0 )
+{}
+
+// Sweep right
+void Cell::SweepRight( const AngularFlux &incoming_flux )
 {
-    // Ensure scalar flux convergence does not occur on first iteration
-    prev_mid_sclflux_.ScalarMultiply( 10.0 );
+    std::cout << "Swept right!" << std::endl;
 }
 
 // Check if scalar flux is converged
@@ -39,6 +42,26 @@ bool Cell::IsConverged() const
         }
     }
     return false;
+}
+
+// Get source term using previous iteration scalar flux
+GroupDependent Cell::PrevIterationSource() const
+{
+    GroupDependent mid_source;
+
+    // Scattering source //
+    mid_source.GroupDependentAdd(
+            segment_.MaterialReference().MacroScatXsec() *
+            prev_mid_sclflux_ );
+
+    // Fission source //
+    mid_source.GroupDependentAdd(
+            segment_.MaterialReference().FissChi() *
+            segment_.MaterialReference().FissNu() *
+            segment_.MaterialReference().MacroFissXsec() *
+            prev_mid_sclflux_ );
+
+    return mid_source;
 }
 
 // Friend functions //

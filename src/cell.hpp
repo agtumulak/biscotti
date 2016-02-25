@@ -19,6 +19,9 @@ class Cell
         // Default constructor
         Cell( const Settings &settings, const Segment &segment );
 
+        // Sweep right
+        void SweepRight( const AngularFlux &incoming_flux );
+
         // Check if scalar flux is converged
         bool IsConverged() const;
 
@@ -27,12 +30,21 @@ class Cell
 
         // Reflect boundary (reflecting on right side)
         void RightReflectBoundary() { out_angflux_.RightReflectBoundary(); };
+
+        // Accessors and mutators //
+
+        // Const reference to outgoing angular flux
+        const AngularFlux &OutgoingAngularFluxReference() const { return out_angflux_; };
+
         // Friend functions //
 
         // Overload operator<<()
         friend std::ostream &operator<< ( std::ostream &out, const Cell &obj );
 
     private:
+
+        // Get source term using previous iteration scalar flux
+        GroupDependent PrevIterationSource() const;
 
         // Const reference to settings
         const Settings &settings_;
