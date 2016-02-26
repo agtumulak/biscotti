@@ -78,7 +78,7 @@ GroupDependent operator* ( const GroupGroupDependent &m, const GroupDependent &v
     // Loop through each groupdependent object (an outscatter vector)
     auto m_it = m.slowest();
     auto v_it = v.slowest();
-    for( ; m_it != m.fastest(); m_it++, v_it++ )
+    for( ; m_it != std::next( m.fastest() ); m_it++, v_it++ )
     {
         // Contribution to group dependent scalar flux from scalar flux at
         // given energy v_it->first
@@ -90,7 +90,7 @@ GroupDependent operator* ( const GroupGroupDependent &m, const GroupDependent &v
 GroupGroupDependent operator* ( const GroupDependent &u, const GroupDependent &v )
 {
     GroupGroupDependent result;
-    for( auto it = v.slowest(); it != v.fastest(); it++ )
+    for( auto it = v.slowest(); it != std::next( v.fastest() ); it++ )
     {
         result.WriteGroup( it->first, u * it->second );
     }
