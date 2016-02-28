@@ -24,7 +24,7 @@ class Layout
         void AddToEnd( Material material, double width, unsigned int num_cells, double scl_flux_guess );
 
         // Generate cells for use with Slab object
-        std::vector<Cell> GenerateCells( const Settings &settings ) const;
+        std::vector<Cell> GenerateCells( const Settings &settings, const double &k ) const;
 
         // Generate energy groups to use in calculation
         std::set<double> GenerateEnergyGroups() const;

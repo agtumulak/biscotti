@@ -19,18 +19,17 @@ GroupDependent::GroupDependent( double energy, double value ):
     data_( {{ energy, value }} )
 {}
 
-// Element-wise addition of another GroupDependent value
-void GroupDependent::GroupDependentAdd( const GroupDependent &g )
+// Overload operator+=()
+void GroupDependent::operator+= ( const GroupDependent &g )
 {
-    std::for_each( data_.begin(), data_.end(),
-            [&g]( std::pair<const double,double> &p )
-            {
-                p.second = p.second + g.at( p.first );
+    std::for_each( g.slowest(), std::next( g.fastest() ),
+            [this]( const std::pair<const double,double> &p ) {
+                this->Add( p.first, p.second );
             } );
 }
 
-// Multiply each value by a scalar
-void GroupDependent::ScalarMultiply( double scalar )
+// Overload operator*=()
+void GroupDependent::operator*=( double scalar )
 {
     std::for_each( data_.begin(), data_.end(),
             [scalar]( std::pair<const double,double> &p )
@@ -107,10 +106,20 @@ std::ostream &operator<< ( std::ostream &out, const GroupDependent &obj )
     return out;
 }
 
-// Overload operator*()
+// Overload operator*() (vector scalar product)
 GroupDependent operator* ( const GroupDependent &g, const double &d )
 {
     GroupDependent result = g;
-    result.ScalarMultiply( d );
+    result *= d;
     return result;
+}
+
+// Overload operator*() (vector inner product)
+double operator* ( const GroupDependent &u, const GroupDependent &v )
+{
+    return std::inner_product( u.slowest(), std::next( u.fastest() ), v.slowest(), 0.0, std::plus<double>(),
+            []( const std::pair<double,double> &p1, const std::pair<double,double> &p2 )
+            {
+                return p1.second * p2.second;
+            } );
 }

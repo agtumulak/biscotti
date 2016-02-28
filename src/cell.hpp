@@ -17,19 +17,25 @@ class Cell
     public:
 
         // Default constructor
-        Cell( const Settings &settings, const Segment &segment );
+        Cell( const Settings &settings, const Segment &segment, const double &k );
+
+        // Return scalar flux at energy
+        double ScalarFlux( double energy ) const;
 
         // Sweep right
-        void SweepRight( const AngularFlux &incoming_flux );
+        void SweepRight( const AngularFlux &in_angflux );
 
         // Check if scalar flux is converged
         bool IsConverged() const;
 
         // Vacuum boundary (incoming on left side)
-        void LeftVacuumBoundary() { out_angflux_.LeftVacuumBoundary(); };
+        void LeftVacuumBoundary();
 
         // Reflect boundary (reflecting on right side)
         void RightReflectBoundary() { out_angflux_.RightReflectBoundary(); };
+
+        // Update source term using current scalar flux and return new fision source
+        double UpdateSourcesReturnFission();
 
         // Accessors and mutators //
 
@@ -43,14 +49,17 @@ class Cell
 
     private:
 
-        // Get source term using previous iteration scalar flux
-        GroupDependent PrevIterationSource() const;
-
         // Const reference to settings
         const Settings &settings_;
 
         // Const reference to segment
         const Segment &segment_;
+
+        // Const reference to material
+        const Material &material_;
+
+        // Const reference to k eigenvalue
+        const double &k_;
 
         // Midpoint group angular flux
         AngularFlux mid_angflux_;
@@ -60,6 +69,9 @@ class Cell
 
         // Previous midpoint scalar flux
         GroupDependent prev_mid_sclflux_;
+
+        // Midpoint isotropic source term
+        GroupDependent mid_source_;
 };
 
 // Friend functions //

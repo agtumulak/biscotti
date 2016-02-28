@@ -4,6 +4,7 @@
 // std includes
 #include <cassert>
 #include <vector>
+#include <numeric>
 
 // sn-solver includes
 #include "groupgroupdependent.hpp"
@@ -82,17 +83,8 @@ GroupDependent operator* ( const GroupGroupDependent &m, const GroupDependent &v
     {
         // Contribution to group dependent scalar flux from scalar flux at
         // given energy v_it->first
-        result.GroupDependentAdd( m_it->second * v_it->second );
-    }
-    return result;
-}
-
-GroupGroupDependent operator* ( const GroupDependent &u, const GroupDependent &v )
-{
-    GroupGroupDependent result;
-    for( auto it = v.slowest(); it != std::next( v.fastest() ); it++ )
-    {
-        result.WriteGroup( it->first, u * it->second );
+        GroupDependent to_add = m_it->second * v_it->second;
+        result +=  m_it->second * v_it->second;
     }
     return result;
 }

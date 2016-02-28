@@ -41,7 +41,6 @@ class GroupGroupDependent
 
             // Overload operator*() (matrix-vector multiplication)
             friend GroupDependent operator* ( const GroupGroupDependent &m, const GroupDependent &v );
-            friend GroupGroupDependent operator* ( const GroupDependent &u, const GroupDependent &v );
 
         private:
 
@@ -59,4 +58,3 @@ std::ostream &operator<< ( std::ostream &out, const GroupGroupDependent &obj );
 
 // Overload operator*() (matrix-vector multiplication)
 GroupDependent operator* ( const GroupGroupDependent &m, const GroupDependent &v );
-GroupGroupDependent operator* ( const GroupDependent &u, const GroupDependent &v );

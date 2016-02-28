@@ -17,11 +17,11 @@ class GroupDependent
             // Initialize constructor
             GroupDependent( double energy, double value );
 
-            // Element-wise addition of another GroupDependent value
-            void GroupDependentAdd( const GroupDependent &g );
+            // Overload operator+=()
+            void operator+= ( const GroupDependent &g );
 
-            // Multiply each value by a scalar
-            void ScalarMultiply( double scalar );
+            // Overload operator*=()
+            void operator*= ( double scalar );
 
             // Sum all values
             double GroupSum() const;
@@ -55,8 +55,11 @@ class GroupDependent
             // Overload operator<<()
             friend std::ostream &operator<< ( std::ostream &out, const GroupDependent &obj );
 
-            // Overload operator*()
+            // Overload operator*() (vector scalar product)
             friend GroupDependent operator* ( const GroupDependent &g, const double &d );
+
+            // Overload operator*() (vector inner product)
+            friend double operator* ( const GroupDependent &u, const GroupDependent &v );
 
         private:
 
@@ -69,5 +72,8 @@ class GroupDependent
 // Overload operator<<()
 std::ostream &operator<< ( std::ostream &out, const GroupDependent &obj );
 
-// Overload operator*()
+// Overload operator*() (vector scalar product)
 GroupDependent operator* ( const GroupDependent &g, const double &d );
+
+// Overload operator*() (vector inner product)
+double  operator* ( const GroupDependent &u, const GroupDependent &v );

@@ -24,7 +24,7 @@ void Layout::AddToEnd( Material material, double width, unsigned int num_cells, 
 }
 
 // Generate cells for use with Slab object
-std::vector<Cell> Layout::GenerateCells( const Settings &settings ) const
+std::vector<Cell> Layout::GenerateCells( const Settings &settings, const double &k ) const
 {
     assert( !data_.empty() );
     std::vector<Cell> output;
@@ -33,7 +33,7 @@ std::vector<Cell> Layout::GenerateCells( const Settings &settings ) const
     {
         for( int i = 0; i != segment_it->NumCells(); i++ )
         {
-            output.push_back( Cell( settings, *segment_it ) );
+            output.push_back( Cell( settings, *segment_it, k ) );
         }
     }
     return output;

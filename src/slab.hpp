@@ -23,6 +23,9 @@ class Slab
         // Solve
         void Solve();
 
+        // Print scalar fluxes
+        void PrintScalarFluxes() const;
+
         // Friend functions //
  
         // Overload operator<<()
@@ -39,17 +42,26 @@ class Slab
         // Check if scalar flux is converged
         bool ScalarFluxConverged();
 
+        // Calculate new source term for each cell and update K
+        void UpdateSourceAndK();
+
         // Const Settings
         const Settings settings_;
 
         // Const Layout
         const Layout layout_;
 
+        // Current k eigenvalue
+        double cur_k_;
+
         // Previous k eigenvalue
         double prev_k_;
 
-        // Current k eigenvalue
-        double cur_k_;
+        // Current fission source
+        double cur_fission_source_;
+
+        // Previous fission source
+        double prev_fission_source_;
 
         // Vector of cells
         std::vector<Cell> cells_;

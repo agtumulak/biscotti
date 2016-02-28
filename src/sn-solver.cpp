@@ -15,10 +15,12 @@ int main()
     // Create settings //
     Settings settings_1;
     settings_1.WriteKGuess( 1.0 );
+    settings_1.WriteFissionSourceGuess( 10.0 );
     settings_1.WriteKTol( 1.0e-5 );
     settings_1.WriteSclFluxTol( 1.0e-5 );
     settings_1.WriteSeed( 10 );
     settings_1.WriteProgressPeriod( 100 );
+    settings_1.WriteWrongness( 100.0 );
 
     // Create moderator material mat_1 //
     Material mat_1;
@@ -76,4 +78,5 @@ int main()
     // Create slab and run //
     Slab slab_1( settings_1, layout_1 );
     slab_1.Solve();
+    slab_1.PrintScalarFluxes();
 }
