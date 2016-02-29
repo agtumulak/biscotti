@@ -26,6 +26,9 @@ class GroupDependent
             // Sum all values
             double GroupSum() const;
 
+            // Return maximum absolute value
+            double MaxAbs() const;
+
             // Accessors and mutators //
 
             // Read value
@@ -61,6 +64,9 @@ class GroupDependent
             // Overload operator*() (vector inner product)
             friend double operator* ( const GroupDependent &u, const GroupDependent &v );
 
+            // Relative error
+            friend GroupDependent RelativeError( const GroupDependent &u, const GroupDependent &v );
+
         private:
 
             // Map of energy groups and values
@@ -77,3 +83,6 @@ GroupDependent operator* ( const GroupDependent &g, const double &d );
 
 // Overload operator*() (vector inner product)
 double  operator* ( const GroupDependent &u, const GroupDependent &v );
+
+// Relative error
+GroupDependent RelativeError( const GroupDependent &u, const GroupDependent &v );

@@ -39,11 +39,14 @@ class Slab
         // Sweep left
         void SweepLeft();
 
-        // Check if scalar flux is converged
-        bool ScalarFluxConverged();
+        // Check if k eigenvalue is converged. If not, create new fission source.
+        bool KConverged();
 
-        // Calculate new source term for each cell and update K
-        void UpdateSourceAndK();
+        // Check if scalar flux is converged
+        bool ScalarFluxConverged( unsigned int i );
+
+        // Calculate new cell scatter sources
+        void UpdateScatterSources();
 
         // Const Settings
         const Settings settings_;

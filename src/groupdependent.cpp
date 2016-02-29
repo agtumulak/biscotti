@@ -3,6 +3,7 @@
 
 // std includes
 #include <cassert>
+#include <cmath>
 #include <map>
 #include <numeric>
 #include <vector>
@@ -23,7 +24,8 @@ GroupDependent::GroupDependent( double energy, double value ):
 void GroupDependent::operator+= ( const GroupDependent &g )
 {
     std::for_each( g.slowest(), std::next( g.fastest() ),
-            [this]( const std::pair<const double,double> &p ) {
+            [this]( const std::pair<const double,double> &p )
+            {
                 this->Add( p.first, p.second );
             } );
 }
@@ -44,6 +46,25 @@ double GroupDependent::GroupSum() const
     return std::accumulate( data_.begin(), data_.end(), 0.0,
             []( const double &x, const std::pair<double,double> &p )
             { return x + p.second; });
+}
+
+// Return maximum absolute value
+double GroupDependent::MaxAbs() const
+{
+    typedef std::map<double,double>::const_iterator T;
+    T max_it = std::max_element( data_.begin(), data_.end(),
+            []( const std::pair<double,double> &smaller, const std::pair<double,double> &bigger )
+            {
+                if( std::fabs( smaller.second ) < std::fabs( bigger.second ) )
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            } );
+    return max_it->second;
 }
 
 // Read value
@@ -122,4 +143,17 @@ double operator* ( const GroupDependent &u, const GroupDependent &v )
             {
                 return p1.second * p2.second;
             } );
+}
+
+// Relative error
+GroupDependent RelativeError( const GroupDependent &fresh, const GroupDependent &old )
+{
+    GroupDependent result;
+    std::map<double,double>::const_iterator new_it = fresh.slowest();
+    std::map<double,double>::const_iterator old_it = old.slowest();
+    for( ; new_it != std::next( fresh.fastest() ); new_it++, old_it++ )
+    {
+        result.Write( new_it->first, ( new_it->second - old_it->second ) / old_it->second );
+    }
+    return result;
 }

@@ -14,11 +14,10 @@
 AngularFlux::AngularFlux( GroupDependent init_energies, double init_scl_flux ):
     scl_flux_updated_( false )
 {
-    // Fill angular fluxes and scalar fluxes
+    // Fill angular fluxes
     for( auto energy_it = init_energies.slowest(); energy_it != std::next( init_energies.fastest() ); energy_it++ )
     {
         data_.insert( std::make_pair( energy_it->first, AngleDependent( 0.5 * init_scl_flux ) ) );
-        scl_flux_.Write( energy_it->first, init_scl_flux );
     }
 }
 

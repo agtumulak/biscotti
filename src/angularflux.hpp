@@ -27,7 +27,13 @@ class AngularFlux
 
         // Return const reference to scalar flux
         const GroupDependent &ScalarFluxReference()
-        { if( !scl_flux_updated_ ) { UpdateScalarFlux(); } return scl_flux_; };
+        {
+            if( !scl_flux_updated_ )
+            {
+                UpdateScalarFlux();
+            }
+            return scl_flux_;
+        };
 
         // Iterators //
 

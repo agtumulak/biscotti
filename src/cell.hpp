@@ -25,19 +25,28 @@ class Cell
         // Sweep right
         void SweepRight( const AngularFlux &in_angflux );
 
-        // Check if scalar flux is converged
-        bool IsConverged();
+        // Sweep left
+        void SweepLeft( const AngularFlux &in_angflux );
 
         // Vacuum boundary (incoming on left side)
         void LeftVacuumBoundary();
 
         // Reflect boundary (reflecting on right side)
-        void RightReflectBoundary() { out_angflux_.RightReflectBoundary(); };
+        void RightReflectBoundary();
 
-        // Update source term using current scalar flux and return new fision source
-        double UpdateSourcesReturnFission();
+        // Return scalar flux error
+        double MaxAbsScalarFluxError();
+
+        // Update midpoint scattering source term
+        void UpdateMidpointScatteringSource();
+
+        // Update midpoint fission source term
+        void UpdateMidpointFissionSource();
 
         // Accessors and mutators //
+
+        // Return cell fission source
+        double FissionSource() const { return mid_fiss_src_.GroupSum() * segment_.CellWidth(); };
 
         // Const reference to outgoing angular flux
         const AngularFlux &OutgoingAngularFluxReference() const { return out_angflux_; };
@@ -70,8 +79,11 @@ class Cell
         // Previous midpoint scalar flux
         GroupDependent prev_mid_sclflux_;
 
-        // Midpoint isotropic source term
-        GroupDependent mid_source_;
+        // Midpoint scattering source term
+        GroupDependent mid_scat_src_;
+
+        // Midpoint fisson source term
+        GroupDependent mid_fiss_src_;
 };
 
 // Friend functions //

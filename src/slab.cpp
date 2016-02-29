@@ -29,22 +29,20 @@ Slab::Slab( const Settings &settings, const Layout &layout ):
 // Solve
 void Slab::Solve()
 {
-    // Enfore vacuum boundary condition
-    cells_.front().LeftVacuumBoundary();
     // Iterate while k is not converged
-    while( std::fabs( ( cur_k_ - prev_k_ ) / prev_k_ ) > settings_.KTol() )
+    while( !KConverged() )
     {
-        // Calculate new sources and k
-        UpdateSourceAndK();
         // Iterate while scalar flux is not converged
-        while( !ScalarFluxConverged() )
+        unsigned int i = 0;
+        do
         {
+            i++;
+            UpdateScatterSources();
+            cells_.front().LeftVacuumBoundary();
             SweepRight();
             cells_.back().RightReflectBoundary();
             SweepLeft();
-            break;
-        }
-        break;
+        } while( !ScalarFluxConverged( i ) );
     }
 }
 
@@ -82,33 +80,73 @@ void Slab::SweepRight()
 // Sweep left
 void Slab::SweepLeft()
 {
-    std::cout << "Swept left" << std::endl;
+    for( auto cell_it = std::next( cells_.rbegin() ); cell_it != cells_.rend(); cell_it++ )
+    {
+        cell_it->SweepLeft( std::prev( cell_it )->OutgoingAngularFluxReference() );
+    }
 }
 
-// Check if scalar flux is converged
-bool Slab::ScalarFluxConverged()
+// Check if k eigenvalue is converged. If not, create new fission source.
+bool Slab::KConverged()
 {
-    return std::all_of( cells_.begin(), cells_.end(),
+    // Update the fission source in all cells
+    std::for_each( cells_.begin(), cells_.end(),
             []( Cell &c )
             {
-                return c.IsConverged();
+                c.UpdateMidpointFissionSource();
             } );
-}
 
-// Calculate new source term for each cell and update K
-void Slab::UpdateSourceAndK()
-{
-    // Store old values
-    prev_k_ = cur_k_;
     prev_fission_source_ = cur_fission_source_;
-
-    // Assign new values
     cur_fission_source_ = std::accumulate( cells_.begin(), cells_.end(), 0.0,
             []( const double &x, Cell &c )
             {
-            return x + c.UpdateSourcesReturnFission();
+                return x + c.FissionSource();
             } );
-    cur_k_ = cur_fission_source_ / prev_fission_source_;
+
+    prev_k_ = cur_k_;
+    cur_k_ = prev_k_ * cur_fission_source_ / prev_fission_source_;
+
+    double k_error =  std::fabs( ( cur_k_ - prev_k_ ) / prev_k_ );
+    std::cout << "k eigenvalue: " << cur_k_ << "\tRelative error: " << k_error << std::endl;
+
+    // Return boolean
+    return k_error < settings_.KTol();
+}
+
+// Check if scalar flux is converged
+bool Slab::ScalarFluxConverged( unsigned int i )
+{
+    std::vector<Cell>::iterator max_it = std::max_element( cells_.begin(), cells_.end(),
+            []( Cell &smaller, Cell &bigger )
+            {
+                if( smaller.MaxAbsScalarFluxError() < bigger.MaxAbsScalarFluxError() )
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            } );
+    double max_abs_rel_error = std::fabs( max_it->MaxAbsScalarFluxError() );
+    if( i % settings_.ProgressPeriod() == 0 )
+    {
+        std::cout << "Iteration: " << i << "\t";
+        std::cout << "Relative error: " << max_abs_rel_error << "\t";
+        std::cout << "Location cell: " << std::distance( cells_.begin(), max_it ) << std::endl;
+    }
+
+    return max_abs_rel_error < settings_.SclFluxTol();
+}
+
+// Calculate new cell scatter sources
+void Slab::UpdateScatterSources()
+{
+    std::for_each( cells_.begin(), cells_.end(),
+            []( Cell &c )
+            {
+                c.UpdateMidpointScatteringSource();
+            } );
 }
 
 // Friend functions //
