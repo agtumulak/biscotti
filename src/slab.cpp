@@ -49,7 +49,7 @@ void Slab::Solve()
 }
 
 // Print scalar fluxes
-void Slab::PrintScalarFluxes() const
+void Slab::PrintScalarFluxes()
 {
     for( auto energy_it = energy_groups_.begin(); energy_it != energy_groups_.end(); energy_it++ )
     {
@@ -89,7 +89,7 @@ void Slab::SweepLeft()
 bool Slab::ScalarFluxConverged()
 {
     return std::all_of( cells_.begin(), cells_.end(),
-            []( const Cell &c )
+            []( Cell &c )
             {
                 return c.IsConverged();
             } );

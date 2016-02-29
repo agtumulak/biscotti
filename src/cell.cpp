@@ -23,7 +23,7 @@ Cell::Cell( const Settings &settings, const Segment &segment, const double &k ):
 {}
 
 // Return scalar flux at energy
-double Cell::ScalarFlux( double energy ) const
+double Cell::ScalarFlux( double energy )
 {
     return mid_angflux_.ScalarFluxReference().at( energy );
 }
@@ -63,12 +63,10 @@ void Cell::SweepRight( const AngularFlux &in_angflux )
             out_angle_it->second.second = 2.0 * mid_angle_it->second.second - in_angle_it->second.second;
         }
     }
-    mid_angflux_.UpdateScalarFlux();
-    out_angflux_.UpdateScalarFlux();
 }
 
 // Check if scalar flux is converged
-bool Cell::IsConverged() const
+bool Cell::IsConverged()
 {
     typedef std::map<double,double>::const_iterator map_it;
     map_it cur_sclflux_it = mid_angflux_.ScalarFluxReference().slowest();

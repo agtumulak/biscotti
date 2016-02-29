@@ -24,7 +24,7 @@ class Slab
         void Solve();
 
         // Print scalar fluxes
-        void PrintScalarFluxes() const;
+        void PrintScalarFluxes();
 
         // Friend functions //
  

@@ -11,7 +11,8 @@
 #include "groupdependent.hpp"
 
 // Default constructor
-AngularFlux::AngularFlux( GroupDependent init_energies, double init_scl_flux )
+AngularFlux::AngularFlux( GroupDependent init_energies, double init_scl_flux ):
+    scl_flux_updated_( false )
 {
     // Fill angular fluxes and scalar fluxes
     for( auto energy_it = init_energies.slowest(); energy_it != std::next( init_energies.fastest() ); energy_it++ )
@@ -29,7 +30,7 @@ void AngularFlux::LeftVacuumBoundary()
             {
                 p.second.LeftVacuumBoundary();
             } );
-    UpdateScalarFlux();
+    scl_flux_updated_ = false;
 }
 
 // Reflect boundary (reflecting on right side)
@@ -40,7 +41,7 @@ void AngularFlux::RightReflectBoundary()
             {
                 p.second.RightReflectBoundary();
             } );
-    UpdateScalarFlux();
+    scl_flux_updated_ = false;
 }
 
 // Update scalar flux
@@ -51,6 +52,7 @@ void AngularFlux::UpdateScalarFlux()
             {
                 scl_flux_.Write( p.first, p.second.GetScalarSum() );
             } );
+    scl_flux_updated_ = true;
 }
 
 // Friend functions //

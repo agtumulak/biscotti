@@ -20,13 +20,13 @@ class Cell
         Cell( const Settings &settings, const Segment &segment, const double &k );
 
         // Return scalar flux at energy
-        double ScalarFlux( double energy ) const;
+        double ScalarFlux( double energy );
 
         // Sweep right
         void SweepRight( const AngularFlux &in_angflux );
 
         // Check if scalar flux is converged
-        bool IsConverged() const;
+        bool IsConverged();
 
         // Vacuum boundary (incoming on left side)
         void LeftVacuumBoundary();

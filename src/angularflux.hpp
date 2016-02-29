@@ -23,19 +23,17 @@ class AngularFlux
         // Reflect boundary (reflecting on right side)
         void RightReflectBoundary();
 
-        // Update scalar flux
-        void UpdateScalarFlux();
-
         // Accessors and mutators //
 
         // Return const reference to scalar flux
-        const GroupDependent &ScalarFluxReference() const { return scl_flux_; };
+        const GroupDependent &ScalarFluxReference()
+        { if( !scl_flux_updated_ ) { UpdateScalarFlux(); } return scl_flux_; };
 
         // Iterators //
 
         // Iterators to fastest and slowest group
-        std::map<double,AngleDependent>::iterator slowest() { return data_.begin(); };
-        std::map<double,AngleDependent>::iterator fastest() { return std::prev( data_.end() ); };
+        std::map<double,AngleDependent>::iterator slowest() { scl_flux_updated_ = false; return data_.begin(); };
+        std::map<double,AngleDependent>::iterator fastest() { scl_flux_updated_ = false; return std::prev( data_.end() ); };
 
         // Const iterators to fastest and slowest group
         std::map<double,AngleDependent>::const_iterator slowest() const { return data_.begin(); };
@@ -48,11 +46,17 @@ class AngularFlux
 
     private:
 
+        // Update scalar flux
+        void UpdateScalarFlux();
+
         // Underlying data structure for angular flux
         std::map<double,AngleDependent> data_;
 
         // Scalar flux
         GroupDependent scl_flux_;
+
+        // Scalar flux is updated
+        bool scl_flux_updated_;
 };
 
 // Friend functions //
