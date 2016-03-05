@@ -140,8 +140,10 @@ void Cell::UpdateMidpointScatteringSource()
 // Update midpoint fission source term
 void Cell::UpdateMidpointFissionSource()
 {
-    double fission_rate = material_.MacroFissXsec() * mid_angflux_.ScalarFluxReference() * material_.FissNu() / k_;
-    mid_fiss_src_ = material_.FissChi() * fission_rate;
+    double fission_rate = material_.MacroFissXsec() * mid_angflux_.ScalarFluxReference();
+    GroupDependent generation_rate = material_.FissNu() * fission_rate;
+    double total_generation_rate = generation_rate.GroupSum() / k_;
+    mid_fiss_src_ = material_.FissChi() * total_generation_rate;
 }
 
 // Friend functions //

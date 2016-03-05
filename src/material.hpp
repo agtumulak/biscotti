@@ -27,8 +27,8 @@ class Material
         void WriteMacroFissXsec( double energy, double value );
         const GroupDependent &MacroFissXsec() const { return macro_fiss_xsec_; };
 
-        void WriteFissNu( double value );
-        double FissNu() const { return fiss_nu_; };
+        void WriteFissNu( double energy, double value );
+        const GroupDependent &FissNu() const { return fiss_nu_; };
 
         void WriteFissChi( double energy, double value );
         const GroupDependent &FissChi() const { return fiss_chi_; };
@@ -58,7 +58,7 @@ class Material
         GroupDependent macro_fiss_xsec_;
 
         // Average number of neutrons produced per fission, nu
-        double fiss_nu_;
+        GroupDependent fiss_nu_;
 
         // Distribution of prompt fission neutrons, chi
         GroupDependent fiss_chi_;

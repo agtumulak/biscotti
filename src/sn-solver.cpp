@@ -38,7 +38,8 @@ int main()
     // Fission
     mat_1.WriteMacroFissXsec( 0.1, 0.0 );
     mat_1.WriteMacroFissXsec( 14.0, 0.0 );
-    mat_1.WriteFissNu( 1.0 );
+    mat_1.WriteFissNu( 0.1, 1.0 );
+    mat_1.WriteFissNu( 14.0, 1.0 );
     mat_1.WriteFissChi( 0.1, 0.0 );
     mat_1.WriteFissChi( 14.0, 1.0 );
 
@@ -62,7 +63,8 @@ int main()
     // Fission
     mat_2.WriteMacroFissXsec( 0.1, 0.05 );
     mat_2.WriteMacroFissXsec( 14.0, 0.0 );
-    mat_2.WriteFissNu( 1.0 );
+    mat_2.WriteFissNu( 0.1, 1.0 );
+    mat_2.WriteFissNu( 14.0, 1.0 );
     mat_2.WriteFissChi( 0.1, 0.0 );
     mat_2.WriteFissChi( 14.0, 1.0 );
 

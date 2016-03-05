@@ -35,9 +35,9 @@ void Material::WriteMacroFissXsec( double energy, double value )
 }
 
 // Average number of neutrons per fission, nu
-void Material::WriteFissNu( double value )
+void Material::WriteFissNu( double energy, double value )
 {
-    fiss_nu_ = value;
+    fiss_nu_.Write( energy, value );
 }
 
 // Energy distribution of fission neutrons, chi
