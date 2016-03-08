@@ -40,6 +40,9 @@ class GroupDependent
             // Add value
             void Add( double energy, double value );
 
+            // Multiply value
+            void Multiply( double energy, double value );
+
             // Read energy at index
             double energyat( unsigned int index ) const;
 
@@ -61,8 +64,11 @@ class GroupDependent
             // Overload operator*() (vector scalar product)
             friend GroupDependent operator* ( const GroupDependent &g, const double &d );
 
-            // Overload operator*() (vector inner product)
-            friend double operator* ( const GroupDependent &u, const GroupDependent &v );
+            // Overload operator*() (elementwise product)
+            friend GroupDependent operator* ( const GroupDependent &u, const GroupDependent &v );
+
+            // Dot product (vector inner product)
+            friend double Dot( const GroupDependent &u, const GroupDependent &v );
 
             // Relative error
             friend GroupDependent RelativeError( const GroupDependent &u, const GroupDependent &v );
@@ -81,8 +87,11 @@ std::ostream &operator<< ( std::ostream &out, const GroupDependent &obj );
 // Overload operator*() (vector scalar product)
 GroupDependent operator* ( const GroupDependent &g, const double &d );
 
-// Overload operator*() (vector inner product)
-double  operator* ( const GroupDependent &u, const GroupDependent &v );
+// Overload operator*() (elementwise product)
+GroupDependent operator* ( const GroupDependent &u, const GroupDependent &v );
+
+// Dot product (vector inner product)
+double Dot( const GroupDependent &u, const GroupDependent &v );
 
 // Relative error
 GroupDependent RelativeError( const GroupDependent &u, const GroupDependent &v );

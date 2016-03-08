@@ -20,14 +20,18 @@ Cell::Cell( const Settings &settings, const Segment &segment, const double &k ):
     mid_angflux_( AngularFlux( material_.TotMacroXsec(), segment_.ScalarFluxGuess() ) ),
     out_angflux_( AngularFlux( material_.TotMacroXsec(), segment_.ScalarFluxGuess() ) ),
     prev_mid_sclflux_( mid_angflux_.ScalarFluxReference() * 10.0 )
-{
-    UpdateMidpointScatteringSource();
-}
+{}
 
 // Return scalar flux at energy
-double Cell::ScalarFlux( double energy )
+double Cell::MidpointScalarFlux( double energy )
 {
     return mid_angflux_.ScalarFluxReference().at( energy );
+}
+
+// Return angular flux at energy
+const AngleDependent &Cell::MidpointAngularFlux( double energy ) const
+{
+    return mid_angflux_.AngularFluxReference().at( energy );
 }
 
 // Sweep right
@@ -35,6 +39,7 @@ void Cell::SweepRight( const AngularFlux &in_angflux )
 {
     prev_mid_sclflux_ = mid_angflux_.ScalarFluxReference();
     // Set up energy iterators
+    std::map<double,double>::const_iterator ext_src_it = material_.ExtSource().slowest();
     std::map<double,double>::const_iterator fiss_src_it = mid_fiss_src_.slowest();
     std::map<double,double>::const_iterator scat_src_it = mid_scat_src_.slowest();
     std::map<double,double>::const_iterator abs_it = material_.TotMacroXsec().slowest();
@@ -44,6 +49,7 @@ void Cell::SweepRight( const AngularFlux &in_angflux )
     // Loop through each energy
     for( ;
             in_energy_it != std::next( in_angflux.fastest() );
+            ext_src_it++,
             fiss_src_it++,
             scat_src_it++,
             abs_it++,
@@ -60,7 +66,9 @@ void Cell::SweepRight( const AngularFlux &in_angflux )
         {
             // Write new midpoint angular flux
             mid_angle_it->second.second =
-                ( in_angle_it->second.second + 0.5 * segment_.CellWidth() * ( fiss_src_it->second + scat_src_it->second ) / in_angle_it->first ) /
+                ( in_angle_it->second.second + 0.25 * segment_.CellWidth() *
+                  ( ext_src_it->second + fiss_src_it->second + scat_src_it->second ) /
+                  in_angle_it->first ) /
                 ( 1.0 + 0.5 * abs_it->second * segment_.CellWidth() / in_angle_it->first );
             // Write new outgoing angular flux
             out_angle_it->second.second = 2.0 * mid_angle_it->second.second - in_angle_it->second.second;
@@ -73,6 +81,7 @@ void Cell::SweepLeft( const AngularFlux &in_angflux )
 {
     prev_mid_sclflux_ = mid_angflux_.ScalarFluxReference();
     // Set up energy iterators
+    std::map<double,double>::const_iterator ext_src_it = material_.ExtSource().slowest();
     std::map<double,double>::const_iterator fiss_src_it = mid_fiss_src_.slowest();
     std::map<double,double>::const_iterator scat_src_it = mid_scat_src_.slowest();
     std::map<double,double>::const_iterator abs_it = material_.TotMacroXsec().slowest();
@@ -82,6 +91,7 @@ void Cell::SweepLeft( const AngularFlux &in_angflux )
     // Loop through each energy
     for( ;
             in_energy_it != std::next( in_angflux.fastest() );
+            ext_src_it++,
             fiss_src_it++,
             scat_src_it++,
             abs_it++,
@@ -98,7 +108,9 @@ void Cell::SweepLeft( const AngularFlux &in_angflux )
         {
             // Write new midpoint angular flux
             mid_angle_it->second.second =
-                ( in_angle_it->second.second - 0.5 * segment_.CellWidth() * ( fiss_src_it->second + scat_src_it->second ) / in_angle_it->first ) /
+                ( in_angle_it->second.second - 0.25 * segment_.CellWidth() *
+                  ( ext_src_it->second + fiss_src_it->second + scat_src_it->second ) /
+                  in_angle_it->first ) /
                 ( 1.0 - 0.5 * abs_it->second * segment_.CellWidth() / in_angle_it->first );
             // Write new outgoing angular flux
             out_angle_it->second.second = 2.0 * mid_angle_it->second.second - in_angle_it->second.second;
@@ -112,7 +124,7 @@ void Cell::LeftVacuumBoundary()
 {
     // Create angular flux at boundary
     AngularFlux in_angflux( material_.TotMacroXsec(), 0.0 );
-    SweepRight( in_angflux );;
+    SweepRight( in_angflux );
 }
 
 // Reflect boundary (reflecting on right side)
@@ -137,13 +149,10 @@ void Cell::UpdateMidpointScatteringSource()
     mid_scat_src_ = material_.MacroScatXsec() * mid_angflux_.ScalarFluxReference();
 }
 
-// Update midpoint fission source term
 void Cell::UpdateMidpointFissionSource()
 {
-    double fission_rate = material_.MacroFissXsec() * mid_angflux_.ScalarFluxReference();
-    GroupDependent generation_rate = material_.FissNu() * fission_rate;
-    double total_generation_rate = generation_rate.GroupSum() / k_;
-    mid_fiss_src_ = material_.FissChi() * total_generation_rate;
+    double fission_rate = Dot( material_.MacroFissXsec(),  mid_angflux_.ScalarFluxReference() ) / k_;
+    mid_fiss_src_ = material_.FissNu() * material_.FissChi() * fission_rate;
 }
 
 // Friend functions //

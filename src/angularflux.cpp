@@ -47,9 +47,9 @@ void AngularFlux::RightReflectBoundary()
 void AngularFlux::UpdateScalarFlux()
 {
     std::for_each( data_.begin(), data_.end(),
-            [&]( std::pair<const double,AngleDependent> &p )
+            [this]( std::pair<const double,AngleDependent> &p )
             {
-                scl_flux_.Write( p.first, p.second.GetScalarSum() );
+                scl_flux_.Write( p.first, p.second.WeightedSum() );
             } );
     scl_flux_updated_ = true;
 }

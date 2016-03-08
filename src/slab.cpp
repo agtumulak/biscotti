@@ -26,8 +26,8 @@ Slab::Slab( const Settings &settings, const Layout &layout ):
     energy_groups_( layout_.GenerateEnergyGroups() )
 {}
 
-// Solve
-void Slab::Solve()
+// Solve for k eigenvalue
+void Slab::EigenvalueSolve()
 {
     // Iterate while k is not converged
     while( !KConverged() )
@@ -46,6 +46,22 @@ void Slab::Solve()
     }
 }
 
+// Solve for fixed source
+void Slab::FixedSourceSolve()
+{
+    unsigned int i = 0;
+    do
+    {
+        i++;
+        UpdateScatterSources();
+        UpdateFissionSources();
+        cells_.front().LeftVacuumBoundary();
+        SweepRight();
+        cells_.back().RightReflectBoundary();
+        SweepLeft();
+    } while( !ScalarFluxConverged( i ) );
+}
+
 // Print scalar fluxes
 void Slab::PrintScalarFluxes()
 {
@@ -54,7 +70,7 @@ void Slab::PrintScalarFluxes()
         std::cout << "#sn_scalar_flux_group_" << *energy_it << "_mev" << std::endl;
         for( auto cell_it = cells_.begin(); cell_it != cells_.end(); cell_it++ )
         {
-            std::cout << cell_it->ScalarFlux( *energy_it );
+            std::cout << cell_it->MidpointScalarFlux( *energy_it );
             if( cell_it == prev( cells_.end() ) )
             {
                 std::cout << std::endl;
@@ -63,6 +79,20 @@ void Slab::PrintScalarFluxes()
             {
                 std::cout << ",";
             }
+        }
+        std::cout << "#end" << std::endl;
+    }
+}
+
+// Print angular fluxes
+void Slab::PrintAngularFluxes()
+{
+    for( auto energy_it = energy_groups_.begin(); energy_it != energy_groups_.end(); energy_it++ )
+    {
+        std::cout << "#sn_angular_flux_group_" << *energy_it << "_mev" << std::endl;
+        for( auto cell_it = cells_.begin(); cell_it != cells_.end(); cell_it++ )
+        {
+            std::cout << cell_it->MidpointAngularFlux( *energy_it ) << std::endl;
         }
         std::cout << "#end" << std::endl;
     }
@@ -146,6 +176,16 @@ void Slab::UpdateScatterSources()
             []( Cell &c )
             {
                 c.UpdateMidpointScatteringSource();
+            } );
+}
+
+// Calcualte new cell fission sources
+void Slab::UpdateFissionSources()
+{
+    std::for_each( cells_.begin(), cells_.end(),
+            []( Cell &c )
+            {
+                c.UpdateMidpointFissionSource();
             } );
 }
 

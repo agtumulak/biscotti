@@ -45,7 +45,7 @@ class Material
 
     private:
 
-        // Total microscopic cross section
+        // Macroscopic total cross section
         GroupDependent tot_macro_xsec_;
 
         // Macroscopic absorption cross section

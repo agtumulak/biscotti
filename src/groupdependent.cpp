@@ -100,6 +100,16 @@ void GroupDependent::Add( double energy, double value )
     data_[ energy ] += value;
 }
 
+// Multiply value
+void GroupDependent::Multiply( double energy, double value )
+{
+    // Check input arguments are valid
+    assert( energy > 0.0 );
+
+    // Multiply value
+    data_[ energy ] *= value;
+}
+
 // Read energy at index
 double GroupDependent::energyat( unsigned int index ) const
 {
@@ -135,8 +145,20 @@ GroupDependent operator* ( const GroupDependent &g, const double &d )
     return result;
 }
 
-// Overload operator*() (vector inner product)
-double operator* ( const GroupDependent &u, const GroupDependent &v )
+// Overload operator*() (elementwise product)
+GroupDependent operator* ( const GroupDependent &u, const GroupDependent &v )
+{
+    GroupDependent result = u;
+    std::for_each( v.slowest(), std::next( v.fastest() ),
+            [&result]( const std::pair<double,double> p )
+            {
+                result.Multiply( p.first, p.second );
+            } );
+    return result;
+}
+
+// Dot product (vector inner product)
+double Dot( const GroupDependent &u, const GroupDependent &v )
 {
     return std::inner_product( u.slowest(), std::next( u.fastest() ), v.slowest(), 0.0, std::plus<double>(),
             []( const std::pair<double,double> &p1, const std::pair<double,double> &p2 )

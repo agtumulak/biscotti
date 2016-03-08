@@ -15,7 +15,7 @@ class AngleDependent
         AngleDependent( double init_val );
 
         // Return scalar sum
-        double GetScalarSum() const;
+        double WeightedSum() const;
 
         // Vacuum boundary (incoming on left side)
         void LeftVacuumBoundary();

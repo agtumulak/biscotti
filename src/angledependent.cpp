@@ -24,9 +24,9 @@ AngleDependent::AngleDependent( double init_val )
 }
 
 // Return scalar sum
-double AngleDependent::GetScalarSum() const
+double AngleDependent::WeightedSum() const
 {
-    return std::accumulate( data_.begin(), data_.end(), 0.0,
+    return 0.5 * std::accumulate( data_.begin(), data_.end(), 0.0,
             []( const double &x, const std::pair<double,std::pair<double,double>> &p )
             {
                 return x + p.second.first * p.second.second;
@@ -63,9 +63,13 @@ std::ostream &operator<< ( std::ostream &out, const AngleDependent &obj )
 {
     for( auto it = obj.data_.begin(); it != obj.data_.end(); it++ )
     {
-        out << "Cosine: " << it->first << "\t";
-        out << "Weight: " << it->second.first << "\t";
-        out << "Value: " << it->second.second << std::endl;
+        out << it->second.second;
+        if( it == prev( obj.data_.end() ) )
+        {}
+        else
+        {
+            std::cout << ",";
+        }
     }
     return out;
 }

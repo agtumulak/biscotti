@@ -20,7 +20,10 @@ class Cell
         Cell( const Settings &settings, const Segment &segment, const double &k );
 
         // Return scalar flux at energy
-        double ScalarFlux( double energy );
+        double MidpointScalarFlux( double energy );
+
+        // Return the angular flux at energy
+        const AngleDependent &MidpointAngularFlux( double energy ) const;
 
         // Sweep right
         void SweepRight( const AngularFlux &in_angflux );

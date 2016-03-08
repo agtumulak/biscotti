@@ -20,11 +20,17 @@ class Slab
         // Default constructor
         Slab( const Settings &settings, const Layout &layout );
 
-        // Solve
-        void Solve();
+        // Solve for k eigenvalue
+        void EigenvalueSolve();
+
+        // Solve for fixed source
+        void FixedSourceSolve();
 
         // Print scalar fluxes
         void PrintScalarFluxes();
+
+        // Print angular fluxes
+        void PrintAngularFluxes();
 
         // Friend functions //
  
@@ -47,6 +53,9 @@ class Slab
 
         // Calculate new cell scatter sources
         void UpdateScatterSources();
+
+        // Calcualte new cell fission sources
+        void UpdateFissionSources();
 
         // Const Settings
         const Settings settings_;

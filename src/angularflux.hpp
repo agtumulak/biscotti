@@ -25,6 +25,9 @@ class AngularFlux
 
         // Accessors and mutators //
 
+        // Return const reference to angular flux
+        const std::map<double,AngleDependent> &AngularFluxReference() const { return data_; };
+
         // Return const reference to scalar flux
         const GroupDependent &ScalarFluxReference()
         {
