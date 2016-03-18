@@ -40,11 +40,6 @@ class Settings
         void WriteProgressPeriod( unsigned int period ) { progress_period_ = period; };
         unsigned int ProgressPeriod() const { return progress_period_; };
 
-        // 'Wrongness' factor to mulitply initial guesses to avoid convergence
-        // on first iteration
-        void WriteWrongness( double wrongess ) { wrongness_ = wrongess; };
-        double Wrongness() const { return wrongness_; };
-
         // Friend functions //
  
         // Overload I/O operators
@@ -69,10 +64,6 @@ class Settings
 
         // Period of progress reports
         unsigned int progress_period_;
-
-        // 'Wrongness' factor to mulitply initial guesses to avoid convergence
-        // on first iterations
-        double wrongness_;
 };
 
 // Friend functions //

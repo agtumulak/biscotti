@@ -19,9 +19,7 @@ Slab::Slab( const Settings &settings, const Layout &layout ):
     settings_( settings ),
     layout_( layout ),
     cur_k_( settings_.KGuess() ),
-    prev_k_( cur_k_ * settings_.Wrongness() ),
     cur_fission_source_( settings_.FissionSourceGuess() ),
-    prev_fission_source_( cur_fission_source_ * settings_.Wrongness() ),
     cells_( layout_.GenerateCells( settings_, cur_k_ ) ),
     energy_groups_( layout_.GenerateEnergyGroups() )
 {}
