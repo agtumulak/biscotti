@@ -20,7 +20,6 @@ int main()
     settings_1.WriteSclFluxTol( 1.0e-5 );
     settings_1.WriteSeed( 10 );
     settings_1.WriteProgressPeriod( 1 );
-    settings_1.WriteWrongness( 100.0 );
 
     // Create moderator material reflector //
     Material reflector;

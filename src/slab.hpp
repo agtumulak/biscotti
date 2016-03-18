@@ -54,7 +54,7 @@ class Slab
         // Calculate new cell scatter sources
         void UpdateScatterSources();
 
-        // Calcualte new cell fission sources
+        // Calculate new cell fission sources
         void UpdateFissionSources();
 
         // Const Settings
