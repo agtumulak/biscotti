@@ -26,7 +26,7 @@ AngleDependent::AngleDependent( double init_val )
 // Return scalar sum
 double AngleDependent::WeightedSum() const
 {
-    return 0.5 * std::accumulate( data_.begin(), data_.end(), 0.0,
+    return std::accumulate( data_.begin(), data_.end(), 0.0,
             []( const double &x, const std::pair<double,std::pair<double,double>> &p )
             {
                 return x + p.second.first * p.second.second;
