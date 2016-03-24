@@ -20,8 +20,14 @@ class AngularFlux
         // Vacuum boundary (incoming on left side)
         void LeftVacuumBoundary();
 
-        // Reflect boundary (reflecting on right side)
+        // [Adjoint] Vacuum boundary (outgoing on left side)
+        void AdjLeftVacuumBoundary();
+
+        // Reflect boundary (reflecting on right side, positive->negative)
         void RightReflectBoundary();
+
+        // [Adjoint] Reflect boundary (reflecting on right side, negative->positive)
+        void AdjRightReflectBoundary();
 
         // Accessors and mutators //
 

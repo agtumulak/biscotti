@@ -24,6 +24,7 @@ void Material::WriteMacroAbsXsec( double energy, double value )
 void Material::WriteMacroScatXsec( double from_energy, double to_energy, double value )
 {
     macro_scat_xsec_.Write( from_energy, to_energy, value );
+    adj_macro_scat_xsec_.Write( to_energy, from_energy, value );
     tot_macro_xsec_.Add( from_energy, value );
 }
 

@@ -28,14 +28,26 @@ class Cell
         // Sweep right
         void SweepRight( const AngularFlux &in_angflux );
 
+        // [Adjoint] Sweep right
+        void AdjSweepRight( const AngularFlux &in_angflux );
+
         // Sweep left
         void SweepLeft( const AngularFlux &in_angflux );
+
+        // [Adjoint] Sweep left
+        void AdjSweepLeft( const AngularFlux &in_angflux );
 
         // Vacuum boundary (incoming on left side)
         void LeftVacuumBoundary();
 
-        // Reflect boundary (reflecting on right side)
+        // [Adjoint] Vacuum boundary (outgoing on left side)
+        void AdjLeftVacuumBoundary();
+
+        // Reflect boundary (reflecting on right side, positive->negative)
         void RightReflectBoundary();
+
+        // [Adjoint] Reflect boundary (reflecting on right side, negative->positive)
+        void AdjRightReflectBoundary();
 
         // Return scalar flux error
         double MaxAbsScalarFluxError();
@@ -43,8 +55,14 @@ class Cell
         // Update midpoint scattering source term
         void UpdateMidpointScatteringSource();
 
+        // [Adjoint] Update midpoint scattering source term
+        void AdjUpdateMidpointScatteringSource();
+
         // Update midpoint fission source term
         void UpdateMidpointFissionSource();
+
+        // [Adjoint] Update midpoint fission source term
+        void AdjUpdateMidpointFissionSource();
 
         // Accessors and mutators //
 
