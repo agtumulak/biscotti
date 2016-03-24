@@ -43,6 +43,16 @@ void AngleDependent::LeftVacuumBoundary()
             } );
 }
 
+// [Adjoint] Vacuum boundary (outgoing on left side)
+void AngleDependent::AdjLeftVacuumBoundary()
+{
+    std::for_each( neg_begin(), neg_end(),
+            []( std::pair<const double,std::pair<double,double>> &p )
+            {
+                p.second.second = 0.0;
+            } );
+}
+
 // Reflect boundary (reflecting on right side)
 void AngleDependent::RightReflectBoundary()
 {
@@ -53,6 +63,19 @@ void AngleDependent::RightReflectBoundary()
     for( ; neg_it != std::next( data_.begin(), data_.size() / 2 ); neg_it++, pos_it++ )
     {
         neg_it->second.second = pos_it->second.second;
+    }
+}
+
+// [Adjoint] Reflect boundary (reflecting on right side, negative->positive)
+void AngleDependent::AdjRightReflectBoundary()
+{
+    typedef std::map<double,std::pair<double,double>>::const_iterator const_angflux_it;
+    typedef std::map<double,std::pair<double,double>>::reverse_iterator reverse_angflux_it;
+    const_angflux_it neg_it = data_.begin(); // Negative iterator moving positive
+    reverse_angflux_it pos_it = data_.rbegin(); // Positive iterator moving negative
+    for( ; neg_it != std::next( data_.begin(), data_.size() / 2 ); neg_it++, pos_it++ )
+    {
+        pos_it->second.second = neg_it->second.second;
     }
 }
 

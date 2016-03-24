@@ -23,6 +23,7 @@ class Material
 
         void WriteMacroScatXsec( double from_energy, double to_energy, double value );
         const GroupGroupDependent &MacroScatXsec() const { return macro_scat_xsec_; };
+        const GroupGroupDependent &AdjMacroScatXsec() const { return adj_macro_scat_xsec_; };
 
         void WriteMacroFissXsec( double energy, double value );
         const GroupDependent &MacroFissXsec() const { return macro_fiss_xsec_; };
@@ -53,6 +54,9 @@ class Material
 
         // Macroscopic scattering cross section
         GroupGroupDependent macro_scat_xsec_;
+
+        // [Adjoint] Macroscopic scattering cross section
+        GroupGroupDependent adj_macro_scat_xsec_;
 
         // Macroscopic fission cross section
         GroupDependent macro_fiss_xsec_;

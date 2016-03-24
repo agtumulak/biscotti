@@ -44,6 +44,26 @@ void Slab::EigenvalueSolve()
     }
 }
 
+// [Adjoint] Solve for k eigenvalue
+void Slab::AdjEigenvalueSolve()
+{
+    // Iterate while k is not converged
+    while( !AdjKConverged() )
+    {
+        // Iterate while scalar flux is not converged
+        unsigned int i = 0;
+        do
+        {
+            i++;
+            AdjUpdateScatterSources();
+            cells_.front().AdjLeftVacuumBoundary();
+            AdjSweepRight();
+            cells_.back().AdjRightReflectBoundary();
+            AdjSweepLeft();
+        } while( !ScalarFluxConverged( i ) );
+    }
+}
+
 // Solve for fixed source
 void Slab::FixedSourceSolve()
 {
@@ -105,12 +125,30 @@ void Slab::SweepRight()
     }
 }
 
+// [Adjoint] Sweep right
+void Slab::AdjSweepRight()
+{
+    for( auto cell_it = std::next( cells_.begin() ); cell_it != cells_.end(); cell_it++ )
+    {
+        cell_it->AdjSweepRight( std::prev( cell_it )->OutgoingAngularFluxReference() );
+    }
+}
+
 // Sweep left
 void Slab::SweepLeft()
 {
     for( auto cell_it = std::next( cells_.rbegin() ); cell_it != cells_.rend(); cell_it++ )
     {
         cell_it->SweepLeft( std::prev( cell_it )->OutgoingAngularFluxReference() );
+    }
+}
+
+// [Adjoint] Sweep left
+void Slab::AdjSweepLeft()
+{
+    for( auto cell_it = std::next( cells_.rbegin() ); cell_it != cells_.rend(); cell_it++ )
+    {
+        cell_it->AdjSweepLeft( std::prev( cell_it )->OutgoingAngularFluxReference() );
     }
 }
 
@@ -136,6 +174,33 @@ bool Slab::KConverged()
 
     double k_error =  std::fabs( ( cur_k_ - prev_k_ ) / prev_k_ );
     std::cout << "k eigenvalue: " << cur_k_ << "\tRelative error: " << k_error << std::endl;
+
+    // Return boolean
+    return k_error < settings_.KTol();
+}
+
+// [Adjoint] Check if k eigenvalue is converged. If not, create new fission source.
+bool Slab::AdjKConverged()
+{
+    // Update the fission source in all cells
+    std::for_each( cells_.begin(), cells_.end(),
+            []( Cell &c )
+            {
+                c.AdjUpdateMidpointFissionSource();
+            } );
+
+    prev_fission_source_ = cur_fission_source_;
+    cur_fission_source_ = std::accumulate( cells_.begin(), cells_.end(), 0.0,
+            []( const double &x, Cell &c )
+            {
+                return x + c.FissionSource();
+            } );
+
+    prev_k_ = cur_k_;
+    cur_k_ = prev_k_ * cur_fission_source_ / prev_fission_source_;
+
+    double k_error =  std::fabs( ( cur_k_ - prev_k_ ) / prev_k_ );
+    std::cout << "adjoint k eigenvalue: " << cur_k_ << "\tRelative error: " << k_error << std::endl;
 
     // Return boolean
     return k_error < settings_.KTol();
@@ -177,6 +242,16 @@ void Slab::UpdateScatterSources()
             } );
 }
 
+// [Adjoint] Calculate new cell scatter sources
+void Slab::AdjUpdateScatterSources()
+{
+    std::for_each( cells_.begin(), cells_.end(),
+            []( Cell &c )
+            {
+                c.AdjUpdateMidpointScatteringSource();
+            } );
+}
+
 // Calcualte new cell fission sources
 void Slab::UpdateFissionSources()
 {
@@ -184,6 +259,16 @@ void Slab::UpdateFissionSources()
             []( Cell &c )
             {
                 c.UpdateMidpointFissionSource();
+            } );
+}
+
+// Calcualte new cell fission sources
+void Slab::AdjUpdateFissionSources()
+{
+    std::for_each( cells_.begin(), cells_.end(),
+            []( Cell &c )
+            {
+                c.AdjUpdateMidpointFissionSource();
             } );
 }
 

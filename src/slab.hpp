@@ -23,6 +23,9 @@ class Slab
         // Solve for k eigenvalue
         void EigenvalueSolve();
 
+        // [Adjoint] Solve for k eigenvalue
+        void AdjEigenvalueSolve();
+
         // Solve for fixed source
         void FixedSourceSolve();
 
@@ -42,11 +45,20 @@ class Slab
         // Sweep right
         void SweepRight();
 
+        // [Adjoint] Sweep right
+        void AdjSweepRight();
+
         // Sweep left
         void SweepLeft();
 
+        // [Adjoint] Sweep left
+        void AdjSweepLeft();
+
         // Check if k eigenvalue is converged. If not, create new fission source.
         bool KConverged();
+
+        // [Adjoint] Check if k eigenvalue is converged. If not, create new fission source.
+        bool AdjKConverged();
 
         // Check if scalar flux is converged
         bool ScalarFluxConverged( unsigned int i );
@@ -54,8 +66,14 @@ class Slab
         // Calculate new cell scatter sources
         void UpdateScatterSources();
 
+        // [Adjoint] Calculate new cell scatter sources
+        void AdjUpdateScatterSources();
+
         // Calculate new cell fission sources
         void UpdateFissionSources();
+
+        // [Adjoint] Calculate new cell fission sources
+        void AdjUpdateFissionSources();
 
         // Const Settings
         const Settings settings_;
