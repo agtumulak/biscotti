@@ -19,8 +19,10 @@ Slab::Slab( const Settings &settings, const Layout &layout ):
     settings_( settings ),
     layout_( layout ),
     cur_k_( settings_.KGuess() ),
+    adj_cur_k_( settings_.AdjKGuess() ),
     cur_fission_source_( settings_.FissionSourceGuess() ),
-    cells_( layout_.GenerateCells( settings_, cur_k_ ) ),
+    adj_cur_fission_source_( settings_.AdjFissionSourceGuess() ),
+    cells_( layout_.GenerateCells( settings_, cur_k_, adj_cur_k_ ) ),
     energy_groups_( layout_.GenerateEnergyGroups() )
 {}
 
@@ -60,7 +62,7 @@ void Slab::AdjEigenvalueSolve()
             AdjSweepRight();
             cells_.back().AdjRightReflectBoundary();
             AdjSweepLeft();
-        } while( !ScalarFluxConverged( i ) );
+        } while( !AdjScalarFluxConverged( i ) );
     }
 }
 
@@ -80,6 +82,22 @@ void Slab::FixedSourceSolve()
     } while( !ScalarFluxConverged( i ) );
 }
 
+// [Adjoint] Solve for fixed source
+void Slab::AdjFixedSourceSolve()
+{
+    unsigned int i = 0;
+    do
+    {
+        i++;
+        AdjUpdateScatterSources();
+        AdjUpdateFissionSources();
+        cells_.front().AdjLeftVacuumBoundary();
+        AdjSweepRight();
+        cells_.back().AdjRightReflectBoundary();
+        AdjSweepLeft();
+    } while( !AdjScalarFluxConverged( i ) );
+}
+
 // Print scalar fluxes
 void Slab::PrintScalarFluxes()
 {
@@ -89,6 +107,28 @@ void Slab::PrintScalarFluxes()
         for( auto cell_it = cells_.begin(); cell_it != cells_.end(); cell_it++ )
         {
             std::cout << cell_it->MidpointScalarFlux( *energy_it );
+            if( cell_it == prev( cells_.end() ) )
+            {
+                std::cout << std::endl;
+            }
+            else
+            {
+                std::cout << ",";
+            }
+        }
+        std::cout << "#end" << std::endl;
+    }
+}
+
+// [Adjoint] Print scalar fluxes
+void Slab::AdjPrintScalarFluxes()
+{
+    for( auto energy_it = energy_groups_.begin(); energy_it != energy_groups_.end(); energy_it++ )
+    {
+        std::cout << "#adj_sn_scalar_flux_group_" << *energy_it << "_mev" << std::endl;
+        for( auto cell_it = cells_.begin(); cell_it != cells_.end(); cell_it++ )
+        {
+            std::cout << cell_it->AdjMidpointScalarFlux( *energy_it );
             if( cell_it == prev( cells_.end() ) )
             {
                 std::cout << std::endl;
@@ -130,7 +170,7 @@ void Slab::AdjSweepRight()
 {
     for( auto cell_it = std::next( cells_.begin() ); cell_it != cells_.end(); cell_it++ )
     {
-        cell_it->AdjSweepRight( std::prev( cell_it )->OutgoingAngularFluxReference() );
+        cell_it->AdjSweepRight( std::prev( cell_it )->AdjOutgoingAngularFluxReference() );
     }
 }
 
@@ -148,7 +188,7 @@ void Slab::AdjSweepLeft()
 {
     for( auto cell_it = std::next( cells_.rbegin() ); cell_it != cells_.rend(); cell_it++ )
     {
-        cell_it->AdjSweepLeft( std::prev( cell_it )->OutgoingAngularFluxReference() );
+        cell_it->AdjSweepLeft( std::prev( cell_it )->AdjOutgoingAngularFluxReference() );
     }
 }
 
@@ -189,21 +229,21 @@ bool Slab::AdjKConverged()
                 c.AdjUpdateMidpointFissionSource();
             } );
 
-    prev_fission_source_ = cur_fission_source_;
-    cur_fission_source_ = std::accumulate( cells_.begin(), cells_.end(), 0.0,
+    adj_prev_fission_source_ = adj_cur_fission_source_;
+    adj_cur_fission_source_ = std::accumulate( cells_.begin(), cells_.end(), 0.0,
             []( const double &x, Cell &c )
             {
-                return x + c.FissionSource();
+                return x + c.AdjFissionSource();
             } );
 
-    prev_k_ = cur_k_;
-    cur_k_ = prev_k_ * cur_fission_source_ / prev_fission_source_;
+    adj_prev_k_ = adj_cur_k_;
+    adj_cur_k_ = adj_prev_k_ * adj_cur_fission_source_ / adj_prev_fission_source_;
 
-    double k_error =  std::fabs( ( cur_k_ - prev_k_ ) / prev_k_ );
-    std::cout << "adjoint k eigenvalue: " << cur_k_ << "\tRelative error: " << k_error << std::endl;
+    double adj_k_error =  std::fabs( ( adj_cur_k_ - adj_prev_k_ ) / adj_prev_k_ );
+    std::cout << "adjoint k eigenvalue: " << adj_cur_k_ << "\tRelative error: " << adj_k_error << std::endl;
 
     // Return boolean
-    return k_error < settings_.KTol();
+    return adj_k_error < settings_.KTol();
 }
 
 // Check if scalar flux is converged
@@ -230,6 +270,32 @@ bool Slab::ScalarFluxConverged( unsigned int i )
     }
 
     return max_abs_rel_error < settings_.SclFluxTol();
+}
+
+// [Adjoint] Check if scalar flux is converged
+bool Slab::AdjScalarFluxConverged( unsigned int i )
+{
+    std::vector<Cell>::iterator max_it = std::max_element( cells_.begin(), cells_.end(),
+            []( Cell &smaller, Cell &bigger )
+            {
+                if( smaller.AdjMaxAbsScalarFluxError() < bigger.AdjMaxAbsScalarFluxError() )
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            } );
+    double adj_max_abs_rel_error = std::fabs( max_it->AdjMaxAbsScalarFluxError() );
+    if( i % settings_.ProgressPeriod() == 0 )
+    {
+        std::cout << "Iteration: " << i << "\t";
+        std::cout << "Relative error: " << adj_max_abs_rel_error << "\t";
+        std::cout << "Location cell: " << std::distance( cells_.begin(), max_it ) << std::endl;
+    }
+
+    return adj_max_abs_rel_error < settings_.SclFluxTol();
 }
 
 // Calculate new cell scatter sources

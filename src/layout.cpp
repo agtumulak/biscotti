@@ -17,14 +17,14 @@ Layout::Layout()
 {}
 
 // Add segment to end
-void Layout::AddToEnd( Material material, double width, unsigned int num_cells, double scl_flux_guess )
+void Layout::AddToEnd( Material material, double width, unsigned int num_cells, double scl_flux_guess, double adj_scl_flux_guess )
 {
     assert( num_cells > 0 );
-    data_.push_back( Segment( material, width, num_cells, scl_flux_guess ) );
+    data_.push_back( Segment( material, width, num_cells, scl_flux_guess, adj_scl_flux_guess ) );
 }
 
 // Generate cells for use with Slab object
-std::vector<Cell> Layout::GenerateCells( const Settings &settings, const double &k ) const
+std::vector<Cell> Layout::GenerateCells( const Settings &settings, const double &k, const double &adj_k ) const
 {
     assert( !data_.empty() );
     std::vector<Cell> output;
@@ -33,7 +33,7 @@ std::vector<Cell> Layout::GenerateCells( const Settings &settings, const double 
     {
         for( int i = 0; i != segment_it->NumCells(); i++ )
         {
-            output.push_back( Cell( settings, *segment_it, k ) );
+            output.push_back( Cell( settings, *segment_it, k, adj_k ) );
         }
     }
     return output;

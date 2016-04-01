@@ -24,6 +24,7 @@ matfilename = basename + '.mat'
 
 # Tokens
 scalar_start = '#sn_scalar'
+adj_scalar_start = '#adj_sn_scalar'
 angular_start = '#sn_angular'
 end_token = '#end'
 
@@ -34,6 +35,9 @@ matlab_dictionary = {}
 with open( csvfilename, 'r') as rawdata:
     for line in rawdata:
         if line.startswith( scalar_start ):
+            # Save to dictionary
+            matlab_dictionary[ ReadName(line) ] = StringToArray( rawdata.next() )
+        if line.startswith( adj_scalar_start ):
             # Save to dictionary
             matlab_dictionary[ ReadName(line) ] = StringToArray( rawdata.next() )
         if line.startswith( angular_start ):

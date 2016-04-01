@@ -53,6 +53,12 @@ void Material::WriteExtSource( double energy, double value )
     ext_source_.Write( energy, value );
 }
 
+// [Adjoint] External source
+void Material::AdjWriteExtSource( double energy, double value )
+{
+    adj_ext_source_.Write( energy, value );
+}
+
 // Friend functions //
 
 // Overload operator<<()

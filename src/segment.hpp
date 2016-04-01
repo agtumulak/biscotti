@@ -17,7 +17,7 @@ class Segment
     public:
 
         // Default constructor
-        Segment( Material material, double width, int num_cells, double scl_flux_guess );
+        Segment( Material material, double width, int num_cells, double scl_flux_guess, double adj_scl_flux_guess );
 
         // Accessors and mutators //
 
@@ -35,6 +35,9 @@ class Segment
 
         // Read scalar flux guess
         double ScalarFluxGuess() const { return scl_flux_guess_; };
+
+        // [Adjoint] Read scalar flux guess
+        double AdjScalarFluxGuess() const { return adj_scl_flux_guess_; };
 
         // Friend functions //
 
@@ -57,6 +60,9 @@ class Segment
 
         // Scalar flux guess
         double scl_flux_guess_;
+
+        // [Adjoint] Scalar flux guess
+        double adj_scl_flux_guess_;
 };
 
 // Friend functions //

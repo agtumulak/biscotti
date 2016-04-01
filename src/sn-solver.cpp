@@ -15,7 +15,9 @@ int main()
     // Create settings //
     Settings settings_1;
     settings_1.WriteKGuess( 1.0 );
+    settings_1.AdjWriteKGuess( 1.0 );
     settings_1.WriteFissionSourceGuess( 10.0 );
+    settings_1.AdjWriteFissionSourceGuess( 10.0 );
     settings_1.WriteKTol( 1.0e-5 );
     settings_1.WriteSclFluxTol( 1.0e-5 );
     settings_1.WriteSeed( 10 );
@@ -45,6 +47,8 @@ int main()
     // External source
     reflector.WriteExtSource( 0.1, 0.0 );
     reflector.WriteExtSource( 14.0, 0.0 );
+    reflector.AdjWriteExtSource( 0.1, 0.0 );
+    reflector.AdjWriteExtSource( 14.0, 0.0 );
 
     // Create fissile material core //
     Material core;
@@ -70,14 +74,16 @@ int main()
     // External source
     core.WriteExtSource( 0.1, 0.0 );
     core.WriteExtSource( 14.0, 0.0 );
+    core.AdjWriteExtSource( 0.1, 0.0 );
+    core.AdjWriteExtSource( 14.0, 0.0 );
 
     // Create layout //
     Layout layout_1;
-    layout_1.AddToEnd( reflector, 25.0, 1000, 1.0 );
-    layout_1.AddToEnd( core, 30.0, 1000, 1.0 );
+    layout_1.AddToEnd( reflector, 25.0, 1000, 1.0, 1.0 );
+    layout_1.AddToEnd( core, 30.0, 1000, 1.0, 1.0 );
 
     // Create slab and run //
     Slab slab_1( settings_1, layout_1 );
-    slab_1.EigenvalueSolve();
-    slab_1.PrintScalarFluxes();
+    slab_1.AdjEigenvalueSolve();
+    slab_1.AdjPrintScalarFluxes();
 }

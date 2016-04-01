@@ -17,10 +17,13 @@ class Cell
     public:
 
         // Default constructor
-        Cell( const Settings &settings, const Segment &segment, const double &k );
+        Cell( const Settings &settings, const Segment &segment, const double &k, const double &adj_k );
 
         // Return scalar flux at energy
         double MidpointScalarFlux( double energy );
+
+        // [Adjoint] Return scalar flux at energy
+        double AdjMidpointScalarFlux( double energy );
 
         // Return the angular flux at energy
         const AngleDependent &MidpointAngularFlux( double energy ) const;
@@ -52,6 +55,9 @@ class Cell
         // Return scalar flux error
         double MaxAbsScalarFluxError();
 
+        // [Adjoint] Return scalar flux error
+        double AdjMaxAbsScalarFluxError();
+
         // Update midpoint scattering source term
         void UpdateMidpointScatteringSource();
 
@@ -69,8 +75,14 @@ class Cell
         // Return cell fission source
         double FissionSource() const { return mid_fiss_src_.GroupSum() * segment_.CellWidth(); };
 
+        // [Adjoint] Return cell fission source
+        double AdjFissionSource() const { return adj_mid_fiss_src_.GroupSum() * segment_.CellWidth(); };
+
         // Const reference to outgoing angular flux
         const AngularFlux &OutgoingAngularFluxReference() const { return out_angflux_; };
+
+        // [Adjoint] Const reference to outgoing angular flux
+        const AngularFlux &AdjOutgoingAngularFluxReference() const { return adj_out_angflux_; };
 
         // Friend functions //
 
@@ -91,20 +103,38 @@ class Cell
         // Const reference to k eigenvalue
         const double &k_;
 
+        // [Adjoint] Const reference to k eigenvalue
+        const double &adj_k_;
+
         // Midpoint group angular flux
         AngularFlux mid_angflux_;
+
+        // [Adjoint] Midpoint group angular flux
+        AngularFlux adj_mid_angflux_;
 
         // Outgoing boundary group angular flux
         AngularFlux out_angflux_;
 
+        // [Adjoint] Outgoing boundary group angular flux
+        AngularFlux adj_out_angflux_;
+
         // Previous midpoint scalar flux
         GroupDependent prev_mid_sclflux_;
+
+        // [Adjoint] Previous midpoint scalar flux
+        GroupDependent adj_prev_mid_sclflux_;
 
         // Midpoint scattering source term
         GroupDependent mid_scat_src_;
 
+        // [Adjoint] Midpoint scattering source term
+        GroupDependent adj_mid_scat_src_;
+
         // Midpoint fisson source term
         GroupDependent mid_fiss_src_;
+
+        // [Adjoint] Midpoint fisson source term
+        GroupDependent adj_mid_fiss_src_;
 };
 
 // Friend functions //

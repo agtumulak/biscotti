@@ -37,6 +37,9 @@ class Material
         void WriteExtSource( double energy, double value );
         const GroupDependent &ExtSource() const { return ext_source_; };
 
+        void AdjWriteExtSource( double energy, double value );
+        const GroupDependent &AdjExtSource() const { return adj_ext_source_; };
+
         const GroupDependent &TotMacroXsec() const { return tot_macro_xsec_; };
 
         // Friend functions //
@@ -69,6 +72,9 @@ class Material
 
         // External source
         GroupDependent ext_source_;
+
+        // [Adjoint] External source
+        GroupDependent adj_ext_source_;
 };
 
 // Friend functions //
