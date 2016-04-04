@@ -1,0 +1,45 @@
+\documentclass[titlepage]{standalone}
+
+% Preamble
+
+%% Packages
+\usepackage{amsmath}
+\usepackage{tabu}
+
+% Document
+\begin{document}
+
+{\tabulinesep=1mm
+\begin{tabu}{c|c|c}
+	\textbf{Parameter} & \textbf{Reflector} & \textbf{Core} \\ \hline
+
+    $\Sigma_{a}$, $\mbox{cm}^{-1}$&
+    $\begin{pmatrix} 0.025&0\\0&0.05 \end{pmatrix}$&
+    $\begin{pmatrix} 1.0&0\\0&0.075 \end{pmatrix}$ \\ \hline
+
+    $\Sigma_{s}$, $\mbox{cm}^{-1}$&
+    $\begin{pmatrix} 0.1125&0\\0.1125&0.25 \end{pmatrix}$&
+    $\begin{pmatrix} 0.049&0\\0.001&1.0 \end{pmatrix}$ \\ \hline
+
+    $\Sigma_{f}$, $\mbox{cm}^{-1}$&
+    $\begin{pmatrix} 0&0\\0&0 \end{pmatrix}$&
+    $\begin{pmatrix} 0.05&0\\0&6.0 \end{pmatrix}$ \\ \hline
+
+    $\nu$ & --- & $\begin{pmatrix} 2.8\\ 2.5 \end{pmatrix} \\ \hline
+    $\chi$ & --- & $\begin{pmatrix} 1.0\\ 0 \end{pmatrix}$ \\ \hline
+
+    $\Sigma_{t}$, $\mbox{cm}^{-1}$&
+    $\begin{pmatrix} 0.25&0\\0&0.3 \end{pmatrix}$&
+    $\begin{pmatrix} 1.1&0\\0&7.075 \end{pmatrix}$ \\ \hline
+
+    $Q_{\mbox{ext}}$&
+    ---&
+    ---& \hline
+
+    Location (cm) &
+    $\begin{matrix} 0 < x < 25 \end{matrix}$&
+    $\begin{matrix} 25 < x < 55 \end{matrix}$ \\ \hline
+
+\end{tabu}}
+
+\end{document}

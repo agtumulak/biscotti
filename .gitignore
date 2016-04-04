@@ -33,9 +33,16 @@
 # Swap files
 *.swp
 
-# YouCompleteMe Files
+# YouCompleteMe files
 .*.py
 .*.pyc
+
+# Latex files
+*.aux
+*.fdb_latexmk
+*.fls
+*.log
+*.out
 
 # bin folder
 bin/
