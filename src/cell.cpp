@@ -18,6 +18,8 @@ Cell::Cell( const Settings &settings, const Segment &segment, const double &k, c
     material_( segment_.MaterialReference() ),
     k_( k ),
     adj_k_( adj_k ),
+    mid_ext_src_( material_.ExtSource() ),
+    adj_mid_ext_src_( material_.AdjExtSource() ),
     mid_angflux_( AngularFlux( material_.TotMacroXsec(), segment_.ScalarFluxGuess() ) ),
     adj_mid_angflux_( AngularFlux( material_.TotMacroXsec(), segment_.AdjScalarFluxGuess() ) ),
     out_angflux_( AngularFlux( material_.TotMacroXsec(), segment_.ScalarFluxGuess() ) ),
@@ -26,30 +28,12 @@ Cell::Cell( const Settings &settings, const Segment &segment, const double &k, c
     adj_prev_mid_sclflux_( adj_mid_angflux_.ScalarFluxReference() * 10.0 )
 {}
 
-// Return scalar flux at energy
-double Cell::MidpointScalarFlux( double energy )
-{
-    return mid_angflux_.ScalarFluxReference().at( energy );
-}
-
-// [Adjoint] Return scalar flux at energy
-double Cell::AdjMidpointScalarFlux( double energy )
-{
-    return adj_mid_angflux_.ScalarFluxReference().at( energy );
-}
-
-// Return angular flux at energy
-const AngleDependent &Cell::MidpointAngularFlux( double energy ) const
-{
-    return mid_angflux_.AngularFluxReference().at( energy );
-}
-
 // Sweep right
 void Cell::SweepRight( const AngularFlux &in_angflux )
 {
     prev_mid_sclflux_ = mid_angflux_.ScalarFluxReference();
     // Set up energy iterators
-    std::map<double,double>::const_iterator ext_src_it = material_.ExtSource().slowest();
+    std::map<double,double>::const_iterator ext_src_it = mid_ext_src_.slowest();
     std::map<double,double>::const_iterator fiss_src_it = mid_fiss_src_.slowest();
     std::map<double,double>::const_iterator scat_src_it = mid_scat_src_.slowest();
     std::map<double,double>::const_iterator abs_it = material_.TotMacroXsec().slowest();
@@ -91,7 +75,7 @@ void Cell::AdjSweepRight( const AngularFlux &adj_in_angflux )
 {
     adj_prev_mid_sclflux_ = adj_mid_angflux_.ScalarFluxReference();
     // Set up energy iterators
-    std::map<double,double>::const_iterator adj_ext_src_it = material_.AdjExtSource().slowest();
+    std::map<double,double>::const_iterator adj_ext_src_it = adj_mid_ext_src_.slowest();
     std::map<double,double>::const_iterator adj_fiss_src_it = adj_mid_fiss_src_.slowest();
     std::map<double,double>::const_iterator adj_scat_src_it = adj_mid_scat_src_.slowest();
     std::map<double,double>::const_iterator abs_it = material_.TotMacroXsec().slowest();
@@ -110,20 +94,20 @@ void Cell::AdjSweepRight( const AngularFlux &adj_in_angflux )
             adj_out_energy_it++ )
     {
         // Set up angle iterators
-        std::map<double,std::pair<double,double>>::const_iterator in_angle_it = adj_in_energy_it->second.neg_begin();
-        std::map<double,std::pair<double,double>>::iterator mid_angle_it = adj_mid_energy_it->second.neg_begin();
-        std::map<double,std::pair<double,double>>::iterator out_angle_it = adj_out_energy_it->second.neg_begin();
+        std::map<double,std::pair<double,double>>::const_iterator adj_in_angle_it = adj_in_energy_it->second.neg_begin();
+        std::map<double,std::pair<double,double>>::iterator adj_mid_angle_it = adj_mid_energy_it->second.neg_begin();
+        std::map<double,std::pair<double,double>>::iterator adj_out_angle_it = adj_out_energy_it->second.neg_begin();
         // Loop through each angle
-        for( ; in_angle_it != adj_in_energy_it->second.neg_end(); in_angle_it++, mid_angle_it++, out_angle_it++ )
+        for( ; adj_in_angle_it != adj_in_energy_it->second.neg_end(); adj_in_angle_it++, adj_mid_angle_it++, adj_out_angle_it++ )
         {
             // Write new midpoint angular flux
-            mid_angle_it->second.second =
-                ( in_angle_it->second.second - 0.25 * segment_.CellWidth() *
+            adj_mid_angle_it->second.second =
+                ( adj_in_angle_it->second.second - 0.25 * segment_.CellWidth() *
                   ( adj_ext_src_it->second + adj_fiss_src_it->second + adj_scat_src_it->second ) /
-                  in_angle_it->first ) /
-                ( 1.0 - 0.5 * abs_it->second * segment_.CellWidth() / in_angle_it->first );
+                  adj_in_angle_it->first ) /
+                ( 1.0 - 0.5 * abs_it->second * segment_.CellWidth() / adj_in_angle_it->first );
             // Write new outgoing angular flux
-            out_angle_it->second.second = 2.0 * mid_angle_it->second.second - in_angle_it->second.second;
+            adj_out_angle_it->second.second = 2.0 * adj_mid_angle_it->second.second - adj_in_angle_it->second.second;
         }
     }
 }
@@ -133,7 +117,7 @@ void Cell::SweepLeft( const AngularFlux &in_angflux )
 {
     prev_mid_sclflux_ = mid_angflux_.ScalarFluxReference();
     // Set up energy iterators
-    std::map<double,double>::const_iterator ext_src_it = material_.ExtSource().slowest();
+    std::map<double,double>::const_iterator ext_src_it = mid_ext_src_.slowest();
     std::map<double,double>::const_iterator fiss_src_it = mid_fiss_src_.slowest();
     std::map<double,double>::const_iterator scat_src_it = mid_scat_src_.slowest();
     std::map<double,double>::const_iterator abs_it = material_.TotMacroXsec().slowest();
@@ -175,7 +159,7 @@ void Cell::AdjSweepLeft( const AngularFlux &adj_in_angflux )
 {
     adj_prev_mid_sclflux_ = adj_mid_angflux_.ScalarFluxReference();
     // Set up energy iterators
-    std::map<double,double>::const_iterator adj_ext_src_it = material_.AdjExtSource().slowest();
+    std::map<double,double>::const_iterator adj_ext_src_it = adj_mid_ext_src_.slowest();
     std::map<double,double>::const_iterator adj_fiss_src_it = adj_mid_fiss_src_.slowest();
     std::map<double,double>::const_iterator adj_scat_src_it = adj_mid_scat_src_.slowest();
     std::map<double,double>::const_iterator abs_it = material_.TotMacroXsec().slowest();
@@ -194,20 +178,20 @@ void Cell::AdjSweepLeft( const AngularFlux &adj_in_angflux )
             adj_out_energy_it++ )
     {
         // Set up angle iterators
-        std::map<double,std::pair<double,double>>::const_iterator in_angle_it = adj_in_energy_it->second.pos_begin();
-        std::map<double,std::pair<double,double>>::iterator mid_angle_it = adj_mid_energy_it->second.pos_begin();
-        std::map<double,std::pair<double,double>>::iterator out_angle_it = adj_out_energy_it->second.pos_begin();
+        std::map<double,std::pair<double,double>>::const_iterator adj_in_angle_it = adj_in_energy_it->second.pos_begin();
+        std::map<double,std::pair<double,double>>::iterator adj_mid_angle_it = adj_mid_energy_it->second.pos_begin();
+        std::map<double,std::pair<double,double>>::iterator adj_out_angle_it = adj_out_energy_it->second.pos_begin();
         // Loop through each angle
-        for( ; in_angle_it != adj_in_energy_it->second.pos_end(); in_angle_it++, mid_angle_it++, out_angle_it++ )
+        for( ; adj_in_angle_it != adj_in_energy_it->second.pos_end(); adj_in_angle_it++, adj_mid_angle_it++, adj_out_angle_it++ )
         {
             // Write new midpoint angular flux
-            mid_angle_it->second.second =
-                ( in_angle_it->second.second + 0.25 * segment_.CellWidth() *
+            adj_mid_angle_it->second.second =
+                ( adj_in_angle_it->second.second + 0.25 * segment_.CellWidth() *
                   ( adj_ext_src_it->second + adj_fiss_src_it->second + adj_scat_src_it->second ) /
-                  in_angle_it->first ) /
-                ( 1.0 + 0.5 * abs_it->second * segment_.CellWidth() / in_angle_it->first );
+                  adj_in_angle_it->first ) /
+                ( 1.0 + 0.5 * abs_it->second * segment_.CellWidth() / adj_in_angle_it->first );
             // Write new outgoing angular flux
-            out_angle_it->second.second = 2.0 * mid_angle_it->second.second - in_angle_it->second.second;
+            adj_out_angle_it->second.second = 2.0 * adj_mid_angle_it->second.second - adj_in_angle_it->second.second;
         }
     }
 }

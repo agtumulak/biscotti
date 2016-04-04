@@ -19,15 +19,6 @@ class Cell
         // Default constructor
         Cell( const Settings &settings, const Segment &segment, const double &k, const double &adj_k );
 
-        // Return scalar flux at energy
-        double MidpointScalarFlux( double energy );
-
-        // [Adjoint] Return scalar flux at energy
-        double AdjMidpointScalarFlux( double energy );
-
-        // Return the angular flux at energy
-        const AngleDependent &MidpointAngularFlux( double energy ) const;
-
         // Sweep right
         void SweepRight( const AngularFlux &in_angflux );
 
@@ -78,11 +69,26 @@ class Cell
         // [Adjoint] Return cell fission source
         double AdjFissionSource() const { return adj_mid_fiss_src_.GroupSum() * segment_.CellWidth(); };
 
+        // Set external source to given value
+        void SetExternalSource( const GroupDependent &value ) { mid_ext_src_ = value; };
+
+        // [Adjoint] Set external source to given value
+        void AdjSetExternalSource( const GroupDependent &value ) { adj_mid_ext_src_ = value; };
+
         // Const reference to outgoing angular flux
         const AngularFlux &OutgoingAngularFluxReference() const { return out_angflux_; };
 
         // [Adjoint] Const reference to outgoing angular flux
         const AngularFlux &AdjOutgoingAngularFluxReference() const { return adj_out_angflux_; };
+
+        // Reference to midpoint angular flux
+        AngularFlux &MidpointAngularFluxReference() { return mid_angflux_; };
+
+        // [Adjoint] Reference to midpoint angular flux
+        AngularFlux &AdjMidpointAngularFluxReference() { return adj_mid_angflux_; };
+
+        // Const reference to material
+        const Material &MaterialReference() const { return material_; };
 
         // Friend functions //
 
@@ -105,6 +111,12 @@ class Cell
 
         // [Adjoint] Const reference to k eigenvalue
         const double &adj_k_;
+
+        // External source term
+        GroupDependent mid_ext_src_;
+
+        // [Adjoint] External source term
+        GroupDependent adj_mid_ext_src_;
 
         // Midpoint group angular flux
         AngularFlux mid_angflux_;

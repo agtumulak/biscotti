@@ -6,6 +6,7 @@
 // std includes
 #include <iostream>
 #include <map>
+#include <set>
 
 class GroupDependent
 {
@@ -16,6 +17,9 @@ class GroupDependent
 
             // Initialize constructor
             GroupDependent( double energy, double value );
+
+            // Fill constructor
+            GroupDependent( const std::set<double> &energy_groups, const double &value );
 
             // Overload operator+=()
             void operator+= ( const GroupDependent &g );

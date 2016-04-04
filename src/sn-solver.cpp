@@ -84,6 +84,5 @@ int main()
 
     // Create slab and run //
     Slab slab_1( settings_1, layout_1 );
-    slab_1.AdjEigenvalueSolve();
-    slab_1.AdjPrintScalarFluxes();
+    slab_1.FissionImportanceSolve();
 }

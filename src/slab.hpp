@@ -26,11 +26,8 @@ class Slab
         // [Adjoint] Solve for k eigenvalue
         void AdjEigenvalueSolve();
 
-        // Solve for fixed source
-        void FixedSourceSolve();
-
-        // [Adjoint] Solve for fixed source
-        void AdjFixedSourceSolve();
+        // Solve for fission importance
+        void FissionImportanceSolve();
 
         // Print scalar fluxes
         void PrintScalarFluxes();
@@ -41,12 +38,21 @@ class Slab
         // Print angular fluxes
         void PrintAngularFluxes();
 
+        // [Adjoint] Print angular fluxes
+        void AdjPrintAngularFluxes();
+
         // Friend functions //
  
         // Overload operator<<()
         friend std::ostream &operator<< ( std::ostream &out, const Slab &obj );
 
     private:
+
+        // Solve for fixed source
+        void FixedSourceSolve();
+
+        // [Adjoint] Solve for fixed source
+        void AdjFixedSourceSolve();
 
         // Sweep right
         void SweepRight();
@@ -67,10 +73,10 @@ class Slab
         bool AdjKConverged();
 
         // Check if scalar flux is converged
-        bool ScalarFluxConverged( unsigned int i );
+        bool ScalarFluxConverged( unsigned int iteration );
 
         // [Adjoint] Check if scalar flux is converged
-        bool AdjScalarFluxConverged( unsigned int i );
+        bool AdjScalarFluxConverged( unsigned int iteration );
 
         // Calculate new cell scatter sources
         void UpdateScatterSources();

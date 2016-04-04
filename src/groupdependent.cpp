@@ -20,6 +20,16 @@ GroupDependent::GroupDependent( double energy, double value ):
     data_( {{ energy, value }} )
 {}
 
+// Fill constructor
+GroupDependent::GroupDependent( const std::set<double> &energy_groups, const double &value )
+{
+    std::for_each( energy_groups.begin(), energy_groups.end(),
+            [this,&value]( const double &e )
+            {
+                this->Add( e, value );
+            } );
+}
+
 // Overload operator+=()
 void GroupDependent::operator+= ( const GroupDependent &g )
 {

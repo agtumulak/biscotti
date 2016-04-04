@@ -10,6 +10,7 @@
 
 // sn-solver includes
 #include "cell.hpp"
+#include "groupdependent.hpp"
 #include "layout.hpp"
 #include "settings.hpp"
 #include "slab.hpp"
@@ -66,6 +67,136 @@ void Slab::AdjEigenvalueSolve()
     }
 }
 
+// Solve for fission importance
+void Slab::FissionImportanceSolve()
+{
+    // Solve the forward problem
+    EigenvalueSolve();
+    adj_cur_k_ = std::numeric_limits<double>::max();
+    // Set all cells external source (response) to zero
+    std::for_each( cells_.begin(), cells_.end(),
+            [this]( Cell &c )
+            {
+                c.AdjSetExternalSource( GroupDependent( energy_groups_, 0.0 ) );
+            } );
+    // Solve fixed source problem for each cell
+    std::vector<double> result;
+    for( auto out_it = cells_.begin(); out_it != cells_.end(); out_it++ )
+    {
+        std::cout << "Current cell: " << std::distance( cells_.begin(), out_it ) << std::endl;
+        // Get response of current cell (fission cross section)
+        GroupDependent response = out_it->MaterialReference().FissNu() * out_it->MaterialReference().MacroFissXsec();
+        // If response of current cell is zero, the solution is zero
+        // everywhere, otherwise solve the fixed source problem
+        result.push_back( 0.0 );
+        if( response.GroupSum() != 0.0 )
+        {
+            // Set response of current cell
+            out_it->AdjSetExternalSource( response );
+            // Solve fixed source problem
+            AdjFixedSourceSolve();
+            // Calculate inner product of forward k-eigenvalue solution and adjoint
+            // fixed source solution
+            for( auto in_it = cells_.begin(); in_it != cells_.end(); in_it++ )
+            {
+                result.back() += Dot(
+                        in_it->AdjMidpointAngularFluxReference().ScalarFluxReference(),
+                        in_it->MidpointAngularFluxReference().ScalarFluxReference() );
+            }
+        }
+        // Unset response of current cell to fission cross section
+        out_it->AdjSetExternalSource( GroupDependent( energy_groups_, 0.0 ) );
+    }
+    // Print results
+    std::cout << "#fission_importance" << std::endl;
+    for( auto it = result.begin(); it != result.end(); it++ )
+    {
+        std::cout << *it;
+        if( it == prev( result.end() ) )
+        {
+            std::cout << std::endl;
+        }
+        else
+        {
+            std::cout << ",";
+        }
+
+    }
+    std::cout << "#end" << std::endl;
+}
+
+// Print scalar fluxes
+void Slab::PrintScalarFluxes()
+{
+    for( auto energy_it = energy_groups_.begin(); energy_it != energy_groups_.end(); energy_it++ )
+    {
+        std::cout << "#sn_scalar_flux_group_" << *energy_it << "_mev" << std::endl;
+        for( auto cell_it = cells_.begin(); cell_it != cells_.end(); cell_it++ )
+        {
+            std::cout << cell_it->MidpointAngularFluxReference().ScalarFluxReference().at( *energy_it );
+            if( cell_it == prev( cells_.end() ) )
+            {
+                std::cout << std::endl;
+            }
+            else
+            {
+                std::cout << ",";
+            }
+        }
+        std::cout << "#end" << std::endl;
+    }
+}
+
+// [Adjoint] Print scalar fluxes
+void Slab::AdjPrintScalarFluxes()
+{
+    for( auto energy_it = energy_groups_.begin(); energy_it != energy_groups_.end(); energy_it++ )
+    {
+        std::cout << "#adj_sn_scalar_flux_group_" << *energy_it << "_mev" << std::endl;
+        for( auto cell_it = cells_.begin(); cell_it != cells_.end(); cell_it++ )
+        {
+            std::cout << cell_it->AdjMidpointAngularFluxReference().ScalarFluxReference().at( *energy_it );
+            if( cell_it == prev( cells_.end() ) )
+            {
+                std::cout << std::endl;
+            }
+            else
+            {
+                std::cout << ",";
+            }
+        }
+        std::cout << "#end" << std::endl;
+    }
+}
+
+// Print angular fluxes
+void Slab::PrintAngularFluxes()
+{
+    for( auto energy_it = energy_groups_.begin(); energy_it != energy_groups_.end(); energy_it++ )
+    {
+        std::cout << "#sn_angular_flux_group_" << *energy_it << "_mev" << std::endl;
+        for( auto cell_it = cells_.begin(); cell_it != cells_.end(); cell_it++ )
+        {
+            std::cout << cell_it->MidpointAngularFluxReference().at( *energy_it );
+        }
+        std::cout << "#end" << std::endl;
+    }
+}
+
+// Print angular fluxes
+void Slab::AdjPrintAngularFluxes()
+{
+    for( auto energy_it = energy_groups_.begin(); energy_it != energy_groups_.end(); energy_it++ )
+    {
+        std::cout << "#adj_sn_angular_flux_group_" << *energy_it << "_mev" << std::endl;
+        for( auto cell_it = cells_.begin(); cell_it != cells_.end(); cell_it++ )
+        {
+            std::cout << cell_it->AdjMidpointAngularFluxReference().at( *energy_it );
+        }
+        std::cout << "#end" << std::endl;
+    }
+}
+
 // Solve for fixed source
 void Slab::FixedSourceSolve()
 {
@@ -96,64 +227,6 @@ void Slab::AdjFixedSourceSolve()
         cells_.back().AdjRightReflectBoundary();
         AdjSweepLeft();
     } while( !AdjScalarFluxConverged( i ) );
-}
-
-// Print scalar fluxes
-void Slab::PrintScalarFluxes()
-{
-    for( auto energy_it = energy_groups_.begin(); energy_it != energy_groups_.end(); energy_it++ )
-    {
-        std::cout << "#sn_scalar_flux_group_" << *energy_it << "_mev" << std::endl;
-        for( auto cell_it = cells_.begin(); cell_it != cells_.end(); cell_it++ )
-        {
-            std::cout << cell_it->MidpointScalarFlux( *energy_it );
-            if( cell_it == prev( cells_.end() ) )
-            {
-                std::cout << std::endl;
-            }
-            else
-            {
-                std::cout << ",";
-            }
-        }
-        std::cout << "#end" << std::endl;
-    }
-}
-
-// [Adjoint] Print scalar fluxes
-void Slab::AdjPrintScalarFluxes()
-{
-    for( auto energy_it = energy_groups_.begin(); energy_it != energy_groups_.end(); energy_it++ )
-    {
-        std::cout << "#adj_sn_scalar_flux_group_" << *energy_it << "_mev" << std::endl;
-        for( auto cell_it = cells_.begin(); cell_it != cells_.end(); cell_it++ )
-        {
-            std::cout << cell_it->AdjMidpointScalarFlux( *energy_it );
-            if( cell_it == prev( cells_.end() ) )
-            {
-                std::cout << std::endl;
-            }
-            else
-            {
-                std::cout << ",";
-            }
-        }
-        std::cout << "#end" << std::endl;
-    }
-}
-
-// Print angular fluxes
-void Slab::PrintAngularFluxes()
-{
-    for( auto energy_it = energy_groups_.begin(); energy_it != energy_groups_.end(); energy_it++ )
-    {
-        std::cout << "#sn_angular_flux_group_" << *energy_it << "_mev" << std::endl;
-        for( auto cell_it = cells_.begin(); cell_it != cells_.end(); cell_it++ )
-        {
-            std::cout << cell_it->MidpointAngularFlux( *energy_it ) << std::endl;
-        }
-        std::cout << "#end" << std::endl;
-    }
 }
 
 // Sweep right
@@ -247,7 +320,7 @@ bool Slab::AdjKConverged()
 }
 
 // Check if scalar flux is converged
-bool Slab::ScalarFluxConverged( unsigned int i )
+bool Slab::ScalarFluxConverged( unsigned int iteration )
 {
     std::vector<Cell>::iterator max_it = std::max_element( cells_.begin(), cells_.end(),
             []( Cell &smaller, Cell &bigger )
@@ -262,18 +335,20 @@ bool Slab::ScalarFluxConverged( unsigned int i )
                 }
             } );
     double max_abs_rel_error = std::fabs( max_it->MaxAbsScalarFluxError() );
-    if( i % settings_.ProgressPeriod() == 0 )
+    double sum_sclflux = max_it->MidpointAngularFluxReference().ScalarFluxReference().GroupSum();
+    if( iteration % settings_.ProgressPeriod() == 0 )
     {
-        std::cout << "Iteration: " << i << "\t";
+        std::cout << "Iteration: " << iteration << "\t";
         std::cout << "Relative error: " << max_abs_rel_error << "\t";
-        std::cout << "Location cell: " << std::distance( cells_.begin(), max_it ) << std::endl;
+        std::cout << "Location cell: " << std::distance( cells_.begin(), max_it ) << "\t";
+        std::cout << "Value at cell: " << sum_sclflux << std::endl;
     }
 
     return max_abs_rel_error < settings_.SclFluxTol();
 }
 
 // [Adjoint] Check if scalar flux is converged
-bool Slab::AdjScalarFluxConverged( unsigned int i )
+bool Slab::AdjScalarFluxConverged( unsigned int iteration )
 {
     std::vector<Cell>::iterator max_it = std::max_element( cells_.begin(), cells_.end(),
             []( Cell &smaller, Cell &bigger )
@@ -288,11 +363,13 @@ bool Slab::AdjScalarFluxConverged( unsigned int i )
                 }
             } );
     double adj_max_abs_rel_error = std::fabs( max_it->AdjMaxAbsScalarFluxError() );
-    if( i % settings_.ProgressPeriod() == 0 )
+    double adj_sum_sclflux = max_it->AdjMidpointAngularFluxReference().ScalarFluxReference().GroupSum();
+    if( iteration % settings_.ProgressPeriod() == 0 )
     {
-        std::cout << "Iteration: " << i << "\t";
+        std::cout << "Iteration: " << iteration << "\t";
         std::cout << "Relative error: " << adj_max_abs_rel_error << "\t";
-        std::cout << "Location cell: " << std::distance( cells_.begin(), max_it ) << std::endl;
+        std::cout << "Location cell: " << std::distance( cells_.begin(), max_it ) << "\t";
+        std::cout << "Value at cell: " << adj_sum_sclflux << std::endl;
     }
 
     return adj_max_abs_rel_error < settings_.SclFluxTol();

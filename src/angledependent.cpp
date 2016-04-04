@@ -87,11 +87,13 @@ std::ostream &operator<< ( std::ostream &out, const AngleDependent &obj )
     for( auto it = obj.data_.begin(); it != obj.data_.end(); it++ )
     {
         out << it->second.second;
-        if( it == prev( obj.data_.end() ) )
-        {}
-        else
+        if( it != prev( obj.data_.end() ) )
         {
             std::cout << ",";
+        }
+        else
+        {
+            std::cout << std::endl;
         }
     }
     return out;
