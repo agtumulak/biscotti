@@ -26,6 +26,7 @@ matfilename = basename + '.mat'
 scalar_start = '#sn_scalar'
 adj_scalar_start = '#adj_sn_scalar'
 angular_start = '#sn_angular'
+adj_angular_start = '#adj_sn_angular'
 end_token = '#end'
 
 # Initialize dictionary
@@ -34,13 +35,10 @@ matlab_dictionary = {}
 # Open file and read
 with open( csvfilename, 'r') as rawdata:
     for line in rawdata:
-        if line.startswith( scalar_start ):
+        if line.startswith( scalar_start ) or line.startswith( adj_scalar_start ):
             # Save to dictionary
             matlab_dictionary[ ReadName(line) ] = StringToArray( rawdata.next() )
-        if line.startswith( adj_scalar_start ):
-            # Save to dictionary
-            matlab_dictionary[ ReadName(line) ] = StringToArray( rawdata.next() )
-        if line.startswith( angular_start ):
+        if line.startswith( angular_start ) or line.startswith( adj_angular_start ):
             # Read name, strip endline, remove invalid characters
             name = ReadName(line);
             # Read angular flux and store in array
