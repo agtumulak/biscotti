@@ -44,6 +44,9 @@
 *.log
 *.out
 
+# Matlab files
+*.mat
+
 # bin folder
 bin/
 
