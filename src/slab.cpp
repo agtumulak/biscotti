@@ -120,7 +120,109 @@ void Slab::FissionImportanceSolve()
         {
             std::cout << ",";
         }
+    }
+    std::cout << "#end" << std::endl;
+}
 
+// Solve for fission source matrix
+void Slab::FissionMatrixSolve()
+{
+    std::vector<std::vector<double>> fiss_matrix;
+    for( auto j_it = cells_.begin(); j_it != cells_.end(); j_it++ )
+    {
+        fiss_matrix.push_back( std::vector<double>() );
+        std::cout << "Current cell: " << std::distance( cells_.begin(), j_it ) << std::endl;
+        // Solve fixed unit source problem with source only in cell j
+        std::for_each( cells_.begin(), cells_.end(),
+                [this]( Cell &c )
+                {
+                    c.SetExternalSource( GroupDependent( energy_groups_, 0.0 ) );
+                } );
+        j_it->SetExternalSource( j_it->MaterialReference().FissChi() );
+        cur_k_ = std::numeric_limits<double>::max();
+        FixedSourceSolve();
+        // Calculate number of neutrons produced in each cell
+        for( auto i_it = cells_.begin(); i_it != cells_.end(); i_it++ )
+        {
+            // Multiply by cell width?
+            fiss_matrix.back().push_back(
+                    Dot( i_it->MidpointAngularFluxReference().ScalarFluxReference(),
+                        i_it->MaterialReference().FissNu() *
+                        i_it->MaterialReference().MacroFissXsec() ) );
+        }
+    }
+    // Print fiss_matrix
+    std::cout << "#fission_matrix" << std::endl;
+    for( auto j_it = fiss_matrix.begin() ; j_it != fiss_matrix.end(); j_it++ )
+    {
+        for( auto i_it = j_it->begin(); i_it != j_it->end(); i_it++ )
+        {
+            std::cout << *i_it;
+            if( i_it == prev( j_it->end() ) )
+            {
+                std::cout << std::endl;
+            }
+            else
+            {
+                std::cout << ",";
+            }
+        }
+    }
+    std::cout << "#end" << std::endl;
+}
+
+// [Adjoint] Solve for fission source matrix
+void Slab::AdjFissionMatrixSolve()
+{
+    std::vector<std::vector<double>> adj_fiss_matrix;
+    for( auto j_it = cells_.begin(); j_it != cells_.end(); j_it++ )
+    {
+        adj_fiss_matrix.push_back( std::vector<double>() );
+        std::cout << "Current cell: " << std::distance( cells_.begin(), j_it ) << std::endl;
+        // Solve fixed unit source problem with response only in cell j
+        std::for_each( cells_.begin(), cells_.end(),
+                [this]( Cell &c )
+                {
+                    c.SetExternalSource( GroupDependent( energy_groups_, 0.0 ) );
+                } );
+        // Only do calculation if response is nonzero, otherwise set solution
+        // to zero everywhere
+        GroupDependent response = j_it->MaterialReference().FissNu() * j_it->MaterialReference().MacroFissXsec();
+        if( response.GroupSum() == 0.0 )
+        {
+            adj_fiss_matrix.back() = std::vector<double>( cells_.size(), 0.0 );
+        }
+        else
+        {
+            j_it->AdjSetExternalSource( response );
+            adj_cur_k_ = std::numeric_limits<double>::max();
+            AdjFixedSourceSolve();
+            // Calculate number of neutrons produced in each cell
+            for( auto i_it = cells_.begin(); i_it != cells_.end(); i_it++ )
+            {
+                // Multiply by cell width?
+                adj_fiss_matrix.back().push_back(
+                        Dot( i_it->AdjMidpointAngularFluxReference().ScalarFluxReference(),
+                            i_it->MaterialReference().FissChi() ) );
+            }
+        }
+    }
+    // Print fiss_matrix
+    std::cout << "#adj_fission_matrix" << std::endl;
+    for( auto j_it = adj_fiss_matrix.begin() ; j_it != adj_fiss_matrix.end(); j_it++ )
+    {
+        for( auto i_it = j_it->begin(); i_it != j_it->end(); i_it++ )
+        {
+            std::cout << *i_it;
+            if( i_it == prev( j_it->end() ) )
+            {
+                std::cout << std::endl;
+            }
+            else
+            {
+                std::cout << ",";
+            }
+        }
     }
     std::cout << "#end" << std::endl;
 }

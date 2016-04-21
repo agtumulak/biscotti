@@ -29,6 +29,12 @@ class Slab
         // Solve for fission importance
         void FissionImportanceSolve();
 
+        // Solve for fission source matrix
+        void FissionMatrixSolve();
+
+        // [Adjoint] Solve for fission source matrix
+        void AdjFissionMatrixSolve();
+
         // Print scalar fluxes
         void PrintScalarFluxes();
 

@@ -27,6 +27,9 @@ scalar_start = '#sn_scalar'
 adj_scalar_start = '#adj_sn_scalar'
 angular_start = '#sn_angular'
 adj_angular_start = '#adj_sn_angular'
+fiss_matrix_start = '#fission_matrix'
+adj_fiss_matrix_start = '#adj_fission_matrix'
+fiss_importance_start = '#fission_importance'
 end_token = '#end'
 
 # Initialize dictionary
@@ -35,10 +38,12 @@ matlab_dictionary = {}
 # Open file and read
 with open( csvfilename, 'r') as rawdata:
     for line in rawdata:
-        if line.startswith( scalar_start ) or line.startswith( adj_scalar_start ):
+        # 1D data
+        if line.startswith( scalar_start ) or line.startswith( adj_scalar_start ) or line.startswith( fiss_importance_start ):
             # Save to dictionary
             matlab_dictionary[ ReadName(line) ] = StringToArray( rawdata.next() )
-        if line.startswith( angular_start ) or line.startswith( adj_angular_start ):
+        # 2D data
+        if line.startswith( angular_start ) or line.startswith( adj_angular_start ) or line.startswith( fiss_matrix_start ) or line.startswith( adj_fiss_matrix_start ):
             # Read name, strip endline, remove invalid characters
             name = ReadName(line);
             # Read angular flux and store in array
@@ -50,7 +55,7 @@ with open( csvfilename, 'r') as rawdata:
                 else:
                     array = numpy.vstack( (array, StringToArray( line )) )
             matlab_dictionary[ name ] = array
-            
+
 # Save to file
 scipy.io.savemat( matfilename, matlab_dictionary )
 print( 'Matlab file produced! ' )
