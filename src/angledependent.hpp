@@ -23,6 +23,12 @@ class AngleDependent
         // [Adjoint] Vacuum boundary (outgoing on left side)
         void AdjLeftVacuumBoundary();
 
+        // Reflect boundary (reflecting on left side, negative->positive)
+        void LeftReflectBoundary();
+
+        // [Adjoint] Reflect boundary (reflecting on left side, positive->negative)
+        void AdjLeftReflectBoundary();
+
         // Reflect boundary (reflecting on right side, positive->negative)
         void RightReflectBoundary();
 

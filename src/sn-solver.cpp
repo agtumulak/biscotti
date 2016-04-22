@@ -14,6 +14,7 @@ int main()
 {
     // Create settings //
     Settings settings_1;
+    settings_1.WriteLeftBC( Settings::VACUUM );
     settings_1.WriteKGuess( 1.0 );
     settings_1.AdjWriteKGuess( 1.0 );
     settings_1.WriteFissionSourceGuess( 10.0 );
@@ -84,5 +85,6 @@ int main()
 
     // Create slab and run //
     Slab slab_1( settings_1, layout_1 );
-    slab_1.FissionImportanceSolve();
+    slab_1.EigenvalueSolve();
+    slab_1.PrintScalarFluxes();
 }

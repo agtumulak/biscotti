@@ -212,6 +212,24 @@ void Cell::AdjLeftVacuumBoundary()
     AdjSweepRight( in_angflux );
 }
 
+// Reflect boundary (reflecting on left side, negative->positive)
+void Cell::LeftReflectBoundary()
+{
+    // Create angular flux at boundary
+    AngularFlux in_angflux = out_angflux_;
+    in_angflux.LeftReflectBoundary();
+    SweepRight( in_angflux );
+}
+
+// [Adjoint] Reflect boundary (reflecting on left side, positive->negative)
+void Cell::AdjLeftReflectBoundary()
+{
+    // Create angular flux at boundary
+    AngularFlux in_angflux = adj_out_angflux_;
+    in_angflux.AdjLeftReflectBoundary();
+    AdjSweepRight( in_angflux );
+}
+
 // Reflect boundary (reflecting on right side, positive->negative)
 void Cell::RightReflectBoundary()
 {

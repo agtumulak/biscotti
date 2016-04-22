@@ -43,6 +43,28 @@ void AngularFlux::AdjLeftVacuumBoundary()
     scl_flux_updated_ = false;
 }
 
+// Reflect boundary (reflecting on left side, negative->positive)
+void AngularFlux::LeftReflectBoundary()
+{
+    std::for_each( data_.begin(), data_.end(),
+            []( std::pair<const double,AngleDependent> &p )
+            {
+                p.second.LeftReflectBoundary();
+            } );
+    scl_flux_updated_ = false;
+}
+
+// [Adjoint] Reflect boundary (reflecting on left side, positive->negative)
+void AngularFlux::AdjLeftReflectBoundary()
+{
+    std::for_each( data_.begin(), data_.end(),
+            []( std::pair<const double,AngleDependent> &p )
+            {
+                p.second.AdjLeftReflectBoundary();
+            } );
+    scl_flux_updated_ = false;
+}
+
 // Reflect boundary (reflecting on right side, positive->negative)
 void AngularFlux::RightReflectBoundary()
 {
@@ -64,7 +86,6 @@ void AngularFlux::AdjRightReflectBoundary()
             } );
     scl_flux_updated_ = false;
 }
-
 
 // Update scalar flux
 void AngularFlux::UpdateScalarFlux()

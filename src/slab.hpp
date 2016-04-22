@@ -60,6 +60,12 @@ class Slab
         // [Adjoint] Solve for fixed source
         void AdjFixedSourceSolve();
 
+        // Impose left boundary condition
+        void ImposeLeftBC();
+
+        // [Adjoint] Impose left boundary condition
+        void AdjImposeLeftBC();
+
         // Sweep right
         void SweepRight();
 

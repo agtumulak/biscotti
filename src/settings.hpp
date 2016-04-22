@@ -11,10 +11,21 @@ class Settings
 {
     public:
 
+        // Enumerate boundary condition types
+        enum BoundaryCondition
+        {
+            VACUUM,
+            REFLECTING
+        };
+
         // Default constructor
         Settings();
 
         // Accessors and mutators //
+
+        // Left boundary condition
+        void WriteLeftBC( BoundaryCondition bc ) { left_bc_ = bc; };
+        BoundaryCondition LeftBC() const { return left_bc_; };
 
         // Fundamental k eigenvalue guess
         void WriteKGuess( double k_guess ) { k_guess_ = k_guess; };
@@ -54,6 +65,9 @@ class Settings
         friend std::ostream &operator<< ( std::ostream &out, const Settings &obj );
 
     private:
+
+        // Left boundary condition
+        BoundaryCondition left_bc_;
 
         // Fundamental k eigenvalue guess
         double k_guess_;

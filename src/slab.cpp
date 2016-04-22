@@ -3,6 +3,7 @@
 
 // std includes
 #include <algorithm>
+#include <cassert>
 #include <cmath>
 #include <iostream>
 #include <numeric>
@@ -39,7 +40,7 @@ void Slab::EigenvalueSolve()
         {
             i++;
             UpdateScatterSources();
-            cells_.front().LeftVacuumBoundary();
+            ImposeLeftBC();
             SweepRight();
             cells_.back().RightReflectBoundary();
             SweepLeft();
@@ -59,7 +60,7 @@ void Slab::AdjEigenvalueSolve()
         {
             i++;
             AdjUpdateScatterSources();
-            cells_.front().AdjLeftVacuumBoundary();
+            AdjImposeLeftBC();
             AdjSweepRight();
             cells_.back().AdjRightReflectBoundary();
             AdjSweepLeft();
@@ -308,7 +309,7 @@ void Slab::FixedSourceSolve()
         i++;
         UpdateScatterSources();
         UpdateFissionSources();
-        cells_.front().LeftVacuumBoundary();
+        ImposeLeftBC();
         SweepRight();
         cells_.back().RightReflectBoundary();
         SweepLeft();
@@ -324,11 +325,45 @@ void Slab::AdjFixedSourceSolve()
         i++;
         AdjUpdateScatterSources();
         AdjUpdateFissionSources();
-        cells_.front().AdjLeftVacuumBoundary();
+        AdjImposeLeftBC();
         AdjSweepRight();
         cells_.back().AdjRightReflectBoundary();
         AdjSweepLeft();
     } while( !AdjScalarFluxConverged( i ) );
+}
+
+// Impose left boundary condition
+void Slab::ImposeLeftBC()
+{
+    if( settings_.LeftBC() == Settings::VACUUM )
+    {
+        cells_.front().LeftVacuumBoundary();
+    }
+    else if( settings_.LeftBC() == Settings::REFLECTING )
+    {
+        cells_.front().LeftReflectBoundary();
+    }
+    else
+    {
+        assert( false );
+    }
+}
+
+// [Adjoint] Impose left boundary condition
+void Slab::AdjImposeLeftBC()
+{
+    if( settings_.LeftBC() == Settings::VACUUM )
+    {
+        cells_.front().AdjLeftVacuumBoundary();
+    }
+    else if( settings_.LeftBC() == Settings::REFLECTING )
+    {
+        cells_.front().AdjLeftReflectBoundary();
+    }
+    else
+    {
+        assert( false );
+    }
 }
 
 // Sweep right
