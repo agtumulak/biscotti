@@ -18,14 +18,20 @@ class GroupDependent
             // Initialize constructor
             GroupDependent( double energy, double value );
 
-            // Fill constructor
+            // Uniform fill constructor
             GroupDependent( const std::set<double> &energy_groups, const double &value );
+
+            // General fill constructor
+            GroupDependent( const std::set<double> &energy_groups, const std::set<double> &values );
 
             // Overload operator+=()
             void operator+= ( const GroupDependent &g );
 
             // Overload operator*=()
             void operator*= ( double scalar );
+
+            // Overload operator/=()
+            void operator/= ( double scalar );
 
             // Sum all values
             double GroupSum() const;
@@ -46,6 +52,9 @@ class GroupDependent
 
             // Multiply value
             void Multiply( double energy, double value );
+
+            // Divide value
+            void Divide( double energy, double value );
 
             // Read energy at index
             double energyat( unsigned int index ) const;
@@ -71,6 +80,12 @@ class GroupDependent
             // Overload operator*() (elementwise product)
             friend GroupDependent operator* ( const GroupDependent &u, const GroupDependent &v );
 
+            // Overload operator/() (vector scalar division)
+            friend GroupDependent operator/ ( const GroupDependent &g, const double &d );
+
+            // Overload operator/() (elementwise division)
+            friend GroupDependent operator/ ( const GroupDependent &u, const GroupDependent &v );
+
             // Dot product (vector inner product)
             friend double Dot( const GroupDependent &u, const GroupDependent &v );
 
@@ -93,6 +108,12 @@ GroupDependent operator* ( const GroupDependent &g, const double &d );
 
 // Overload operator*() (elementwise product)
 GroupDependent operator* ( const GroupDependent &u, const GroupDependent &v );
+
+// Overload operator/() (vector scalar division)
+GroupDependent operator/ ( const GroupDependent &g, const double &d );
+
+// Overload operator/() (elementwise division)
+GroupDependent operator/ ( const GroupDependent &u, const GroupDependent &v );
 
 // Dot product (vector inner product)
 double Dot( const GroupDependent &u, const GroupDependent &v );

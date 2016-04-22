@@ -3,6 +3,7 @@
 
 // std includes
 #include <cassert>
+#include <cmath>
 #include <iostream>
 #include <set>
 #include <vector>
@@ -55,6 +56,23 @@ std::set<double> Layout::GenerateEnergyGroups() const
         }
     }
     return energy_groups;
+}
+
+// Generate speed groups to use in calculation (eV to cm/s)
+std::set<double> Layout::GenerateSpeedGroups() const
+{
+    // Speed of light (cm/s)
+    double c = 2.998e10;
+    // Neutron mass (eV/c^2)
+    double m = 939.5654e6;
+
+    std::set<double> speed_groups;
+    std::set<double> energy_groups = GenerateEnergyGroups();
+    for( auto it = energy_groups.begin(); it != energy_groups.end(); it++ )
+    {
+        speed_groups.insert( c * sqrt( 2.0 * *it /m ) );
+    }
+    return speed_groups;
 }
 
 // Friend functions //

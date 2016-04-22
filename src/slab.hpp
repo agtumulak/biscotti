@@ -47,6 +47,12 @@ class Slab
         // [Adjoint] Print angular fluxes
         void AdjPrintAngularFluxes();
 
+        // Print neutron densities
+        void PrintNeutronDensities();
+
+        // [Adjoint] Print neutron densities
+        void AdjPrintNeutronDensities();
+
         // Friend functions //
  
         // Overload operator<<()
@@ -136,7 +142,10 @@ class Slab
         std::vector<Cell> cells_;
 
         // Set of energy groups for problem
-        std::set<double> energy_groups_;
+        const std::set<double> energy_groups_;
+
+        // Corresponding speeds for each energy group
+        GroupDependent speeds_;
 };
 
 // Friend functions //

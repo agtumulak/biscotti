@@ -12,7 +12,7 @@ def StringToArray( input_string ):
     
 def ReadName( input_string ):
     # Read name, strip endline, remove characters that will fuck with matlab
-    name = input_string[1:].rstrip().replace('.','_point_')
+    name = input_string[1:].rstrip().replace('.','_point_').replace('+','')
     return name
 
 ## Main function ##
@@ -30,6 +30,8 @@ adj_angular_start = '#adj_sn_angular'
 fiss_matrix_start = '#fission_matrix'
 adj_fiss_matrix_start = '#adj_fission_matrix'
 fiss_importance_start = '#fission_importance'
+neutron_density_start = '#sn_neutron_density'
+adj_neutron_density_start = '#adj_sn_neutron_density'
 end_token = '#end'
 
 # Initialize dictionary
@@ -39,7 +41,7 @@ matlab_dictionary = {}
 with open( csvfilename, 'r') as rawdata:
     for line in rawdata:
         # 1D data
-        if line.startswith( scalar_start ) or line.startswith( adj_scalar_start ) or line.startswith( fiss_importance_start ):
+        if line.startswith( scalar_start ) or line.startswith( adj_scalar_start ) or line.startswith( fiss_importance_start ) or line.startswith( neutron_density_start ) or line.startswith( adj_neutron_density_start ):
             # Save to dictionary
             matlab_dictionary[ ReadName(line) ] = StringToArray( rawdata.next() )
         # 2D data

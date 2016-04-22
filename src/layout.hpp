@@ -29,6 +29,9 @@ class Layout
         // Generate energy groups to use in calculation
         std::set<double> GenerateEnergyGroups() const;
 
+        // Generate speed groups to use in calculation (eV to cm/s)
+        std::set<double> GenerateSpeedGroups() const;
+
         // Overload operator<<()
         friend std::ostream &operator<< ( std::ostream &out, const Layout &obj );
 

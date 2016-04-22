@@ -20,13 +20,24 @@ GroupDependent::GroupDependent( double energy, double value ):
     data_( {{ energy, value }} )
 {}
 
-// Fill constructor
+// Uniform fill constructor
 GroupDependent::GroupDependent( const std::set<double> &energy_groups, const double &value )
 {
     std::for_each( energy_groups.begin(), energy_groups.end(),
             [this,&value]( const double &e )
             {
                 this->Add( e, value );
+            } );
+}
+
+// General fill constructor
+GroupDependent::GroupDependent( const std::set<double> &energy_groups, const std::set<double> &values )
+{
+    assert( energy_groups.size() == values.size() );
+    std::transform( energy_groups.begin(), energy_groups.end(), values.begin(), std::inserter( data_, data_.end() ),
+            []( const double &e, const double &v )
+            {
+                return std::make_pair( e, v );
             } );
 }
 
@@ -46,7 +57,17 @@ void GroupDependent::operator*=( double scalar )
     std::for_each( data_.begin(), data_.end(),
             [scalar]( std::pair<const double,double> &p )
             {
-                p.second = p.second * scalar;
+                p.second *= scalar;
+            } );
+}
+
+// Overload operator/=()
+void GroupDependent::operator/= ( double scalar )
+{
+    std::for_each( data_.begin(), data_.end(),
+            [scalar]( std::pair<const double, double> &p )
+            {
+                p.second /= scalar;
             } );
 }
 
@@ -120,6 +141,16 @@ void GroupDependent::Multiply( double energy, double value )
     data_[ energy ] *= value;
 }
 
+// Divide value
+void GroupDependent::Divide( double energy, double value )
+{
+    // Check input arguments are valid
+    assert( energy > 0.0 );
+
+    // Multiply value
+    data_[ energy ] /= value;
+}
+
 // Read energy at index
 double GroupDependent::energyat( unsigned int index ) const
 {
@@ -160,9 +191,29 @@ GroupDependent operator* ( const GroupDependent &u, const GroupDependent &v )
 {
     GroupDependent result = u;
     std::for_each( v.slowest(), std::next( v.fastest() ),
-            [&result]( const std::pair<double,double> p )
+            [&result]( const std::pair<double,double> &p )
             {
                 result.Multiply( p.first, p.second );
+            } );
+    return result;
+}
+
+// Overload operator/() (vector scalar division)
+GroupDependent operator/ ( const GroupDependent &g, const double &d )
+{
+    GroupDependent result = g;
+    result /= d;
+    return result;
+}
+
+// Overload operator/() (elementwise division)
+GroupDependent operator/ ( const GroupDependent &u, const GroupDependent &v )
+{
+    GroupDependent result = u;
+    std::for_each( v.slowest(), std::next( v.fastest() ),
+            [&result]( const std::pair<double,double> &p )
+            {
+                result.Divide( p.first, p.second );
             } );
     return result;
 }

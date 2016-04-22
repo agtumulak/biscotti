@@ -25,7 +25,8 @@ Slab::Slab( const Settings &settings, const Layout &layout ):
     cur_fission_source_( settings_.FissionSourceGuess() ),
     adj_cur_fission_source_( settings_.AdjFissionSourceGuess() ),
     cells_( layout_.GenerateCells( settings_, cur_k_, adj_cur_k_ ) ),
-    energy_groups_( layout_.GenerateEnergyGroups() )
+    energy_groups_( layout_.GenerateEnergyGroups() ),
+    speeds_( GroupDependent( energy_groups_, layout_.GenerateSpeedGroups() ) )
 {}
 
 // Solve for k eigenvalue
@@ -102,7 +103,7 @@ void Slab::FissionImportanceSolve()
             {
                 result.back() += Dot(
                         in_it->AdjMidpointAngularFluxReference().ScalarFluxReference(),
-                        in_it->MidpointAngularFluxReference().ScalarFluxReference() );
+                        in_it->MidpointAngularFluxReference().ScalarFluxReference() / speeds_ );
             }
         }
         // Unset response of current cell to fission cross section
@@ -233,7 +234,7 @@ void Slab::PrintScalarFluxes()
 {
     for( auto energy_it = energy_groups_.begin(); energy_it != energy_groups_.end(); energy_it++ )
     {
-        std::cout << "#sn_scalar_flux_group_" << *energy_it << "_mev" << std::endl;
+        std::cout << "#sn_scalar_flux_group_" << *energy_it << "_ev" << std::endl;
         for( auto cell_it = cells_.begin(); cell_it != cells_.end(); cell_it++ )
         {
             std::cout << cell_it->MidpointAngularFluxReference().ScalarFluxReference().at( *energy_it );
@@ -255,7 +256,7 @@ void Slab::AdjPrintScalarFluxes()
 {
     for( auto energy_it = energy_groups_.begin(); energy_it != energy_groups_.end(); energy_it++ )
     {
-        std::cout << "#adj_sn_scalar_flux_group_" << *energy_it << "_mev" << std::endl;
+        std::cout << "#adj_sn_scalar_flux_group_" << *energy_it << "_ev" << std::endl;
         for( auto cell_it = cells_.begin(); cell_it != cells_.end(); cell_it++ )
         {
             std::cout << cell_it->AdjMidpointAngularFluxReference().ScalarFluxReference().at( *energy_it );
@@ -277,7 +278,7 @@ void Slab::PrintAngularFluxes()
 {
     for( auto energy_it = energy_groups_.begin(); energy_it != energy_groups_.end(); energy_it++ )
     {
-        std::cout << "#sn_angular_flux_group_" << *energy_it << "_mev" << std::endl;
+        std::cout << "#sn_angular_flux_group_" << *energy_it << "_ev" << std::endl;
         for( auto cell_it = cells_.begin(); cell_it != cells_.end(); cell_it++ )
         {
             std::cout << cell_it->MidpointAngularFluxReference().at( *energy_it );
@@ -291,10 +292,40 @@ void Slab::AdjPrintAngularFluxes()
 {
     for( auto energy_it = energy_groups_.begin(); energy_it != energy_groups_.end(); energy_it++ )
     {
-        std::cout << "#adj_sn_angular_flux_group_" << *energy_it << "_mev" << std::endl;
+        std::cout << "#adj_sn_angular_flux_group_" << *energy_it << "_ev" << std::endl;
         for( auto cell_it = cells_.begin(); cell_it != cells_.end(); cell_it++ )
         {
             std::cout << cell_it->AdjMidpointAngularFluxReference().at( *energy_it );
+        }
+        std::cout << "#end" << std::endl;
+    }
+}
+
+// Print neutron densities
+void Slab::PrintNeutronDensities()
+{
+    for( auto energy_it = energy_groups_.begin(); energy_it != energy_groups_.end(); energy_it++ )
+    {
+        std::cout << "#sn_neutron_density_group_" << *energy_it << "_ev" << std::endl;
+        for( auto cell_it = cells_.begin(); cell_it != cells_.end(); cell_it++ )
+        {
+            std::cout << cell_it->MidpointAngularFluxReference().ScalarFluxReference().at( *energy_it ) / speeds_.at( *energy_it );
+            cell_it == prev( cells_.end() ) ? std::cout << std::endl : std::cout << ",";
+        }
+        std::cout << "#end" << std::endl;
+    }
+}
+
+// [Adjoint] Print neutron densities
+void Slab::AdjPrintNeutronDensities()
+{
+    for( auto energy_it = energy_groups_.begin(); energy_it != energy_groups_.end(); energy_it++ )
+    {
+        std::cout << "#adj_sn_neutron_density_group_" << *energy_it << "_ev" << std::endl;
+        for( auto cell_it = cells_.begin(); cell_it != cells_.end(); cell_it++ )
+        {
+            std::cout << cell_it->AdjMidpointAngularFluxReference().ScalarFluxReference().at( *energy_it ) / speeds_.at( *energy_it );
+            cell_it == prev( cells_.end() ) ? std::cout << std::endl : std::cout << ",";
         }
         std::cout << "#end" << std::endl;
     }
