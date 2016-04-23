@@ -29,7 +29,7 @@ angular_start = '#sn_angular'
 adj_angular_start = '#adj_sn_angular'
 fiss_matrix_start = '#fission_matrix'
 adj_fiss_matrix_start = '#adj_fission_matrix'
-fiss_importance_start = '#fission_importance'
+fgws_start = '#first_generation_weighted_source'
 neutron_density_start = '#sn_neutron_density'
 adj_neutron_density_start = '#adj_sn_neutron_density'
 end_token = '#end'
@@ -41,7 +41,7 @@ matlab_dictionary = {}
 with open( csvfilename, 'r') as rawdata:
     for line in rawdata:
         # 1D data
-        if line.startswith( scalar_start ) or line.startswith( adj_scalar_start ) or line.startswith( fiss_importance_start ) or line.startswith( neutron_density_start ) or line.startswith( adj_neutron_density_start ):
+        if line.startswith( scalar_start ) or line.startswith( adj_scalar_start ) or line.startswith( fgws_start ) or line.startswith( neutron_density_start ) or line.startswith( adj_neutron_density_start ):
             # Save to dictionary
             matlab_dictionary[ ReadName(line) ] = StringToArray( rawdata.next() )
         # 2D data

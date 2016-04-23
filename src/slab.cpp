@@ -110,7 +110,7 @@ void Slab::FirstGenerationWeightedSourceSolve()
         out_it->AdjSetExternalSource( GroupDependent( energy_groups_, 0.0 ) );
     }
     // Print results
-    std::cout << "#fission_importance" << std::endl;
+    std::cout << "#first_generation_weighted_source" << std::endl;
     for( auto it = result.begin(); it != result.end(); it++ )
     {
         std::cout << *it;
