@@ -26,8 +26,8 @@ class Slab
         // [Adjoint] Solve for k eigenvalue
         void AdjEigenvalueSolve();
 
-        // Solve for fission importance
-        void FissionImportanceSolve();
+        // Solve for first generation weighted source (FGWS)
+        void FirstGenerationWeightedSourceSolve();
 
         // Solve for fission source matrix
         void FissionMatrixSolve();

@@ -69,8 +69,8 @@ void Slab::AdjEigenvalueSolve()
     }
 }
 
-// Solve for fission importance
-void Slab::FissionImportanceSolve()
+// Solve for first generation weighted source (FGWS)
+void Slab::FirstGenerationWeightedSourceSolve()
 {
     // Solve the forward problem
     EigenvalueSolve();
