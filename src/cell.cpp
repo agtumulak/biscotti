@@ -58,13 +58,13 @@ void Cell::SweepRight( const AngularFlux &in_angflux )
         // Loop through each angle
         for( ; in_angle_it != in_energy_it->second.pos_end(); in_angle_it++, mid_angle_it++, out_angle_it++ )
         {
-            // Write new midpoint angular flux
+            // Set new midpoint angular flux
             mid_angle_it->second.second =
                 ( in_angle_it->second.second + 0.25 * segment_.CellWidth() *
                   ( ext_src_it->second + fiss_src_it->second + scat_src_it->second ) /
                   in_angle_it->first ) /
                 ( 1.0 + 0.5 * abs_it->second * segment_.CellWidth() / in_angle_it->first );
-            // Write new outgoing angular flux
+            // Set new outgoing angular flux
             out_angle_it->second.second = 2.0 * mid_angle_it->second.second - in_angle_it->second.second;
         }
     }
@@ -100,13 +100,13 @@ void Cell::AdjSweepRight( const AngularFlux &adj_in_angflux )
         // Loop through each angle
         for( ; adj_in_angle_it != adj_in_energy_it->second.neg_end(); adj_in_angle_it++, adj_mid_angle_it++, adj_out_angle_it++ )
         {
-            // Write new midpoint angular flux
+            // Set new midpoint angular flux
             adj_mid_angle_it->second.second =
                 ( adj_in_angle_it->second.second - 0.25 * segment_.CellWidth() *
                   ( adj_ext_src_it->second + adj_fiss_src_it->second + adj_scat_src_it->second ) /
                   adj_in_angle_it->first ) /
                 ( 1.0 - 0.5 * abs_it->second * segment_.CellWidth() / adj_in_angle_it->first );
-            // Write new outgoing angular flux
+            // Set new outgoing angular flux
             adj_out_angle_it->second.second = 2.0 * adj_mid_angle_it->second.second - adj_in_angle_it->second.second;
         }
     }
@@ -142,13 +142,13 @@ void Cell::SweepLeft( const AngularFlux &in_angflux )
         // Loop through each angle
         for( ; in_angle_it != in_energy_it->second.neg_end(); in_angle_it++, mid_angle_it++, out_angle_it++ )
         {
-            // Write new midpoint angular flux
+            // Set new midpoint angular flux
             mid_angle_it->second.second =
                 ( in_angle_it->second.second - 0.25 * segment_.CellWidth() *
                   ( ext_src_it->second + fiss_src_it->second + scat_src_it->second ) /
                   in_angle_it->first ) /
                 ( 1.0 - 0.5 * abs_it->second * segment_.CellWidth() / in_angle_it->first );
-            // Write new outgoing angular flux
+            // Set new outgoing angular flux
             out_angle_it->second.second = 2.0 * mid_angle_it->second.second - in_angle_it->second.second;
         }
     }
@@ -184,13 +184,13 @@ void Cell::AdjSweepLeft( const AngularFlux &adj_in_angflux )
         // Loop through each angle
         for( ; adj_in_angle_it != adj_in_energy_it->second.pos_end(); adj_in_angle_it++, adj_mid_angle_it++, adj_out_angle_it++ )
         {
-            // Write new midpoint angular flux
+            // Set new midpoint angular flux
             adj_mid_angle_it->second.second =
                 ( adj_in_angle_it->second.second + 0.25 * segment_.CellWidth() *
                   ( adj_ext_src_it->second + adj_fiss_src_it->second + adj_scat_src_it->second ) /
                   adj_in_angle_it->first ) /
                 ( 1.0 + 0.5 * abs_it->second * segment_.CellWidth() / adj_in_angle_it->first );
-            // Write new outgoing angular flux
+            // Set new outgoing angular flux
             adj_out_angle_it->second.second = 2.0 * adj_mid_angle_it->second.second - adj_in_angle_it->second.second;
         }
     }

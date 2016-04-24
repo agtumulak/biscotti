@@ -19,25 +19,25 @@ class Material
 
         // Accessors and mutators //
 
-        void WriteMacroAbsXsec( double energy, double value );
+        void SetMacroAbsXsec( double energy, double value );
 
-        void WriteMacroScatXsec( double from_energy, double to_energy, double value );
+        void SetMacroScatXsec( double from_energy, double to_energy, double value );
         const GroupGroupDependent &MacroScatXsec() const { return macro_scat_xsec_; };
         const GroupGroupDependent &AdjMacroScatXsec() const { return adj_macro_scat_xsec_; };
 
-        void WriteMacroFissXsec( double energy, double value );
+        void SetMacroFissXsec( double energy, double value );
         const GroupDependent &MacroFissXsec() const { return macro_fiss_xsec_; };
 
-        void WriteFissNu( double energy, double value );
+        void SetFissNu( double energy, double value );
         const GroupDependent &FissNu() const { return fiss_nu_; };
 
-        void WriteFissChi( double energy, double value );
+        void SetFissChi( double energy, double value );
         const GroupDependent &FissChi() const { return fiss_chi_; };
 
-        void WriteExtSource( double energy, double value );
+        void SetExtSource( double energy, double value );
         const GroupDependent &ExtSource() const { return ext_source_; };
 
-        void AdjWriteExtSource( double energy, double value );
+        void AdjSetExtSource( double energy, double value );
         const GroupDependent &AdjExtSource() const { return adj_ext_source_; };
 
         const GroupDependent &TotMacroXsec() const { return tot_macro_xsec_; };

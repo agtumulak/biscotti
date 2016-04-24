@@ -111,13 +111,13 @@ double GroupDependent::at( double energy ) const
     }
 }
 
-// Write value
-void GroupDependent::Write( double energy, double value )
+// Set value
+void GroupDependent::Set( double energy, double value )
 {
     // Check input arguments are valid
     assert( energy > 0.0 );
 
-    // Write new value at energy
+    // Set new value at energy
     data_[ energy ] = value;
 }
 
@@ -236,7 +236,7 @@ GroupDependent RelativeError( const GroupDependent &fresh, const GroupDependent 
     std::map<double,double>::const_iterator old_it = old.slowest();
     for( ; new_it != std::next( fresh.fastest() ); new_it++, old_it++ )
     {
-        result.Write( new_it->first, ( new_it->second - old_it->second ) / old_it->second );
+        result.Set( new_it->first, ( new_it->second - old_it->second ) / old_it->second );
     }
     return result;
 }

@@ -22,11 +22,11 @@ class GroupGroupDependent
             // Read value
             GroupDependent at( double energy ) const;
 
-            // Write value
-            void Write( double energy_1, double energy_2, double value );
+            // Set value
+            void Set( double energy_1, double energy_2, double value );
 
-            // Write energy group
-            void WriteGroup( double energy, const GroupDependent &value );
+            // Set energy group
+            void SetGroup( double energy, const GroupDependent &value );
 
             // Iterators //
 

@@ -14,49 +14,49 @@ Material::Material()
 // Accessors and mutators //
 
 // Absorption cross section
-void Material::WriteMacroAbsXsec( double energy, double value )
+void Material::SetMacroAbsXsec( double energy, double value )
 {
-    macro_abs_xsec_.Write( energy, value );
+    macro_abs_xsec_.Set( energy, value );
     tot_macro_xsec_.Add( energy, value );
 }
 
 // Scattering cross section
-void Material::WriteMacroScatXsec( double from_energy, double to_energy, double value )
+void Material::SetMacroScatXsec( double from_energy, double to_energy, double value )
 {
-    macro_scat_xsec_.Write( from_energy, to_energy, value );
-    adj_macro_scat_xsec_.Write( to_energy, from_energy, value );
+    macro_scat_xsec_.Set( from_energy, to_energy, value );
+    adj_macro_scat_xsec_.Set( to_energy, from_energy, value );
     tot_macro_xsec_.Add( from_energy, value );
 }
 
 // Fission cross section
-void Material::WriteMacroFissXsec( double energy, double value )
+void Material::SetMacroFissXsec( double energy, double value )
 {
-    macro_fiss_xsec_.Write( energy, value );
+    macro_fiss_xsec_.Set( energy, value );
     tot_macro_xsec_.Add( energy, value );
 }
 
 // Average number of neutrons per fission, nu
-void Material::WriteFissNu( double energy, double value )
+void Material::SetFissNu( double energy, double value )
 {
-    fiss_nu_.Write( energy, value );
+    fiss_nu_.Set( energy, value );
 }
 
 // Energy distribution of fission neutrons, chi
-void Material::WriteFissChi( double energy, double value )
+void Material::SetFissChi( double energy, double value )
 {
-    fiss_chi_.Write( energy, value );
+    fiss_chi_.Set( energy, value );
 }
 
 // External source
-void Material::WriteExtSource( double energy, double value )
+void Material::SetExtSource( double energy, double value )
 {
-    ext_source_.Write( energy, value );
+    ext_source_.Set( energy, value );
 }
 
 // [Adjoint] External source
-void Material::AdjWriteExtSource( double energy, double value )
+void Material::AdjSetExtSource( double energy, double value )
 {
-    adj_ext_source_.Write( energy, value );
+    adj_ext_source_.Set( energy, value );
 }
 
 // Friend functions //

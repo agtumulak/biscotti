@@ -93,7 +93,7 @@ void AngularFlux::UpdateScalarFlux()
     std::for_each( data_.begin(), data_.end(),
             [this]( std::pair<const double,AngleDependent> &p )
             {
-                scl_flux_.Write( p.first, p.second.WeightedSum() );
+                scl_flux_.Set( p.first, p.second.WeightedSum() );
             } );
     scl_flux_updated_ = true;
 }

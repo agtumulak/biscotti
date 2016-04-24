@@ -44,8 +44,8 @@ class GroupDependent
             // Read value
             double at( double energy ) const;
 
-            // Write value
-            void Write( double energy, double value );
+            // Set value
+            void Set( double energy, double value );
 
             // Add value
             void Add( double energy, double value );

@@ -23,8 +23,8 @@ GroupDependent GroupGroupDependent::at( double energy ) const
     return data_.at( energy );
 }
 
-// Write value
-void GroupGroupDependent::Write( double energy_1, double energy_2, double value )
+// Set value
+void GroupGroupDependent::Set( double energy_1, double energy_2, double value )
 {
     // Check input arguments are valid
     assert( energy_1 > 0.0 && energy_1 > 0.0 && value >= 0.0 );
@@ -33,7 +33,7 @@ void GroupGroupDependent::Write( double energy_1, double energy_2, double value 
     if( data_.find( energy_1 ) != data_.end() )
     {
         // Group at energy_1 exists, write/overwrite value at energy_2
-        data_[ energy_1 ].Write( energy_2, value );
+        data_[ energy_1 ].Set( energy_2, value );
     }
     else
     {
@@ -42,8 +42,8 @@ void GroupGroupDependent::Write( double energy_1, double energy_2, double value 
     }
 }
 
-// Write energy group
-void GroupGroupDependent::WriteGroup( double energy, const GroupDependent &value )
+// Set energy group
+void GroupGroupDependent::SetGroup( double energy, const GroupDependent &value )
 {
     // Check input arguments are valid
     assert( energy > 0.0 );
