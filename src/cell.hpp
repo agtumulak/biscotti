@@ -69,6 +69,9 @@ class Cell
 
         // Accessors and mutators //
 
+        // Return cell width
+        double Width() const { return segment_.CellWidth(); };
+
         // Return cell fission source
         double FissionSource() const { return mid_fiss_src_.GroupSum() * segment_.CellWidth(); };
 

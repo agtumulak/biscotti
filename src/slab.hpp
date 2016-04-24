@@ -26,32 +26,11 @@ class Slab
         // [Adjoint] Solve for k eigenvalue
         void AdjEigenvalueSolve();
 
-        // Solve for first generation weighted source (FGWS)
-        void FirstGenerationWeightedSourceSolve();
-
         // Solve for fission source matrix
         void FissionMatrixSolve();
 
-        // [Adjoint] Solve for fission source matrix
-        void AdjFissionMatrixSolve();
-
-        // Print scalar fluxes
-        void PrintScalarFluxes();
-
-        // [Adjoint] Print scalar fluxes
-        void AdjPrintScalarFluxes();
-
-        // Print angular fluxes
-        void PrintAngularFluxes();
-
-        // [Adjoint] Print angular fluxes
-        void AdjPrintAngularFluxes();
-
-        // Print neutron densities
-        void PrintNeutronDensities();
-
-        // [Adjoint] Print neutron densities
-        void AdjPrintNeutronDensities();
+        // Solve for first generation weighted source (FGWS)
+        void FirstGenerationWeightedSourceSolve();
 
         // Friend functions //
  
@@ -107,6 +86,24 @@ class Slab
 
         // [Adjoint] Calculate new cell fission sources
         void AdjUpdateFissionSources();
+
+        // Print scalar fluxes
+        void PrintScalarFluxes();
+
+        // [Adjoint] Print scalar fluxes
+        void AdjPrintScalarFluxes();
+
+        // Print angular fluxes
+        void PrintAngularFluxes();
+
+        // [Adjoint] Print angular fluxes
+        void AdjPrintAngularFluxes();
+
+        // Print neutron densities
+        void PrintNeutronDensities();
+
+        // [Adjoint] Print neutron densities
+        void AdjPrintNeutronDensities();
 
         // Const Settings
         const Settings settings_;

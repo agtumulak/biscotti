@@ -47,6 +47,7 @@ void Slab::EigenvalueSolve()
             SweepLeft();
         } while( !ScalarFluxConverged( i ) );
     }
+    PrintScalarFluxes();
 }
 
 // [Adjoint] Solve for k eigenvalue
@@ -67,6 +68,49 @@ void Slab::AdjEigenvalueSolve()
             AdjSweepLeft();
         } while( !AdjScalarFluxConverged( i ) );
     }
+    AdjPrintScalarFluxes();
+}
+
+// Solve for fission source matrix
+void Slab::FissionMatrixSolve()
+{
+    std::vector<std::vector<double>> fiss_matrix;
+    for( auto j_it = cells_.begin(); j_it != cells_.end(); j_it++ )
+    {
+        fiss_matrix.push_back( std::vector<double>() );
+        std::cout << "Current cell: " << std::distance( cells_.begin(), j_it ) << std::endl;
+        // Solve fixed unit source problem with source only in cell j
+        std::for_each( cells_.begin(), cells_.end(),
+                [this]( Cell &c )
+                {
+                    c.SetExternalSource( GroupDependent( energy_groups_, 0.0 ) );
+                } );
+        // External source is divided by cell width to ensure "one" source
+        // neutron is produced
+        j_it->SetExternalSource( j_it->MaterialReference().FissChi() * j_it->Width() );
+        cur_k_ = std::numeric_limits<double>::max();
+        FixedSourceSolve();
+        // Calculate number of neutrons produced in each cell
+        for( auto i_it = cells_.begin(); i_it != cells_.end(); i_it++ )
+        {
+            fiss_matrix.back().push_back(
+                    Dot( i_it->MidpointAngularFluxReference().ScalarFluxReference(),
+                        i_it->MaterialReference().FissNu() *
+                        i_it->MaterialReference().MacroFissXsec() ) *
+                    i_it->Width() );
+        }
+    }
+    // Print fiss_matrix
+    std::cout << "#fission_matrix" << std::endl;
+    for( auto j_it = fiss_matrix.begin() ; j_it != fiss_matrix.end(); j_it++ )
+    {
+        for( auto i_it = j_it->begin(); i_it != j_it->end(); i_it++ )
+        {
+            std::cout << *i_it;
+            i_it == prev( j_it->end() ) ? std::cout << std::endl : std::cout << ",";
+        }
+    }
+    std::cout << "#end" << std::endl;
 }
 
 // Solve for first generation weighted source (FGWS)
@@ -114,221 +158,9 @@ void Slab::FirstGenerationWeightedSourceSolve()
     for( auto it = result.begin(); it != result.end(); it++ )
     {
         std::cout << *it;
-        if( it == prev( result.end() ) )
-        {
-            std::cout << std::endl;
-        }
-        else
-        {
-            std::cout << ",";
-        }
+        it == prev( result.end() ) ? std::cout << std::endl : std::cout<< ",";
     }
     std::cout << "#end" << std::endl;
-}
-
-// Solve for fission source matrix
-void Slab::FissionMatrixSolve()
-{
-    std::vector<std::vector<double>> fiss_matrix;
-    for( auto j_it = cells_.begin(); j_it != cells_.end(); j_it++ )
-    {
-        fiss_matrix.push_back( std::vector<double>() );
-        std::cout << "Current cell: " << std::distance( cells_.begin(), j_it ) << std::endl;
-        // Solve fixed unit source problem with source only in cell j
-        std::for_each( cells_.begin(), cells_.end(),
-                [this]( Cell &c )
-                {
-                    c.SetExternalSource( GroupDependent( energy_groups_, 0.0 ) );
-                } );
-        j_it->SetExternalSource( j_it->MaterialReference().FissChi() );
-        cur_k_ = std::numeric_limits<double>::max();
-        FixedSourceSolve();
-        // Calculate number of neutrons produced in each cell
-        for( auto i_it = cells_.begin(); i_it != cells_.end(); i_it++ )
-        {
-            // Multiply by cell width?
-            fiss_matrix.back().push_back(
-                    Dot( i_it->MidpointAngularFluxReference().ScalarFluxReference(),
-                        i_it->MaterialReference().FissNu() *
-                        i_it->MaterialReference().MacroFissXsec() ) );
-        }
-    }
-    // Print fiss_matrix
-    std::cout << "#fission_matrix" << std::endl;
-    for( auto j_it = fiss_matrix.begin() ; j_it != fiss_matrix.end(); j_it++ )
-    {
-        for( auto i_it = j_it->begin(); i_it != j_it->end(); i_it++ )
-        {
-            std::cout << *i_it;
-            if( i_it == prev( j_it->end() ) )
-            {
-                std::cout << std::endl;
-            }
-            else
-            {
-                std::cout << ",";
-            }
-        }
-    }
-    std::cout << "#end" << std::endl;
-}
-
-// [Adjoint] Solve for fission source matrix
-void Slab::AdjFissionMatrixSolve()
-{
-    std::vector<std::vector<double>> adj_fiss_matrix;
-    for( auto j_it = cells_.begin(); j_it != cells_.end(); j_it++ )
-    {
-        adj_fiss_matrix.push_back( std::vector<double>() );
-        std::cout << "Current cell: " << std::distance( cells_.begin(), j_it ) << std::endl;
-        // Solve fixed unit source problem with response only in cell j
-        std::for_each( cells_.begin(), cells_.end(),
-                [this]( Cell &c )
-                {
-                    c.SetExternalSource( GroupDependent( energy_groups_, 0.0 ) );
-                } );
-        // Only do calculation if response is nonzero, otherwise set solution
-        // to zero everywhere
-        GroupDependent response = j_it->MaterialReference().FissNu() * j_it->MaterialReference().MacroFissXsec();
-        if( response.GroupSum() == 0.0 )
-        {
-            adj_fiss_matrix.back() = std::vector<double>( cells_.size(), 0.0 );
-        }
-        else
-        {
-            j_it->AdjSetExternalSource( response );
-            adj_cur_k_ = std::numeric_limits<double>::max();
-            AdjFixedSourceSolve();
-            // Calculate number of neutrons produced in each cell
-            for( auto i_it = cells_.begin(); i_it != cells_.end(); i_it++ )
-            {
-                // Multiply by cell width?
-                adj_fiss_matrix.back().push_back(
-                        Dot( i_it->AdjMidpointAngularFluxReference().ScalarFluxReference(),
-                            i_it->MaterialReference().FissChi() ) );
-            }
-        }
-    }
-    // Print fiss_matrix
-    std::cout << "#adj_fission_matrix" << std::endl;
-    for( auto j_it = adj_fiss_matrix.begin() ; j_it != adj_fiss_matrix.end(); j_it++ )
-    {
-        for( auto i_it = j_it->begin(); i_it != j_it->end(); i_it++ )
-        {
-            std::cout << *i_it;
-            if( i_it == prev( j_it->end() ) )
-            {
-                std::cout << std::endl;
-            }
-            else
-            {
-                std::cout << ",";
-            }
-        }
-    }
-    std::cout << "#end" << std::endl;
-}
-
-// Print scalar fluxes
-void Slab::PrintScalarFluxes()
-{
-    for( auto energy_it = energy_groups_.begin(); energy_it != energy_groups_.end(); energy_it++ )
-    {
-        std::cout << "#sn_scalar_flux_group_" << *energy_it << "_ev" << std::endl;
-        for( auto cell_it = cells_.begin(); cell_it != cells_.end(); cell_it++ )
-        {
-            std::cout << cell_it->MidpointAngularFluxReference().ScalarFluxReference().at( *energy_it );
-            if( cell_it == prev( cells_.end() ) )
-            {
-                std::cout << std::endl;
-            }
-            else
-            {
-                std::cout << ",";
-            }
-        }
-        std::cout << "#end" << std::endl;
-    }
-}
-
-// [Adjoint] Print scalar fluxes
-void Slab::AdjPrintScalarFluxes()
-{
-    for( auto energy_it = energy_groups_.begin(); energy_it != energy_groups_.end(); energy_it++ )
-    {
-        std::cout << "#adj_sn_scalar_flux_group_" << *energy_it << "_ev" << std::endl;
-        for( auto cell_it = cells_.begin(); cell_it != cells_.end(); cell_it++ )
-        {
-            std::cout << cell_it->AdjMidpointAngularFluxReference().ScalarFluxReference().at( *energy_it );
-            if( cell_it == prev( cells_.end() ) )
-            {
-                std::cout << std::endl;
-            }
-            else
-            {
-                std::cout << ",";
-            }
-        }
-        std::cout << "#end" << std::endl;
-    }
-}
-
-// Print angular fluxes
-void Slab::PrintAngularFluxes()
-{
-    for( auto energy_it = energy_groups_.begin(); energy_it != energy_groups_.end(); energy_it++ )
-    {
-        std::cout << "#sn_angular_flux_group_" << *energy_it << "_ev" << std::endl;
-        for( auto cell_it = cells_.begin(); cell_it != cells_.end(); cell_it++ )
-        {
-            std::cout << cell_it->MidpointAngularFluxReference().at( *energy_it );
-        }
-        std::cout << "#end" << std::endl;
-    }
-}
-
-// Print angular fluxes
-void Slab::AdjPrintAngularFluxes()
-{
-    for( auto energy_it = energy_groups_.begin(); energy_it != energy_groups_.end(); energy_it++ )
-    {
-        std::cout << "#adj_sn_angular_flux_group_" << *energy_it << "_ev" << std::endl;
-        for( auto cell_it = cells_.begin(); cell_it != cells_.end(); cell_it++ )
-        {
-            std::cout << cell_it->AdjMidpointAngularFluxReference().at( *energy_it );
-        }
-        std::cout << "#end" << std::endl;
-    }
-}
-
-// Print neutron densities
-void Slab::PrintNeutronDensities()
-{
-    for( auto energy_it = energy_groups_.begin(); energy_it != energy_groups_.end(); energy_it++ )
-    {
-        std::cout << "#sn_neutron_density_group_" << *energy_it << "_ev" << std::endl;
-        for( auto cell_it = cells_.begin(); cell_it != cells_.end(); cell_it++ )
-        {
-            std::cout << cell_it->MidpointAngularFluxReference().ScalarFluxReference().at( *energy_it ) / speeds_.at( *energy_it );
-            cell_it == prev( cells_.end() ) ? std::cout << std::endl : std::cout << ",";
-        }
-        std::cout << "#end" << std::endl;
-    }
-}
-
-// [Adjoint] Print neutron densities
-void Slab::AdjPrintNeutronDensities()
-{
-    for( auto energy_it = energy_groups_.begin(); energy_it != energy_groups_.end(); energy_it++ )
-    {
-        std::cout << "#adj_sn_neutron_density_group_" << *energy_it << "_ev" << std::endl;
-        for( auto cell_it = cells_.begin(); cell_it != cells_.end(); cell_it++ )
-        {
-            std::cout << cell_it->AdjMidpointAngularFluxReference().ScalarFluxReference().at( *energy_it ) / speeds_.at( *energy_it );
-            cell_it == prev( cells_.end() ) ? std::cout << std::endl : std::cout << ",";
-        }
-        std::cout << "#end" << std::endl;
-    }
 }
 
 // Solve for fixed source
@@ -581,6 +413,108 @@ void Slab::AdjUpdateFissionSources()
             {
                 c.AdjUpdateMidpointFissionSource();
             } );
+}
+
+// Print scalar fluxes
+void Slab::PrintScalarFluxes()
+{
+    for( auto energy_it = energy_groups_.begin(); energy_it != energy_groups_.end(); energy_it++ )
+    {
+        std::cout << "#sn_scalar_flux_group_" << *energy_it << "_ev" << std::endl;
+        for( auto cell_it = cells_.begin(); cell_it != cells_.end(); cell_it++ )
+        {
+            std::cout << cell_it->MidpointAngularFluxReference().ScalarFluxReference().at( *energy_it );
+            if( cell_it == prev( cells_.end() ) )
+            {
+                std::cout << std::endl;
+            }
+            else
+            {
+                std::cout << ",";
+            }
+        }
+        std::cout << "#end" << std::endl;
+    }
+}
+
+// [Adjoint] Print scalar fluxes
+void Slab::AdjPrintScalarFluxes()
+{
+    for( auto energy_it = energy_groups_.begin(); energy_it != energy_groups_.end(); energy_it++ )
+    {
+        std::cout << "#adj_sn_scalar_flux_group_" << *energy_it << "_ev" << std::endl;
+        for( auto cell_it = cells_.begin(); cell_it != cells_.end(); cell_it++ )
+        {
+            std::cout << cell_it->AdjMidpointAngularFluxReference().ScalarFluxReference().at( *energy_it );
+            if( cell_it == prev( cells_.end() ) )
+            {
+                std::cout << std::endl;
+            }
+            else
+            {
+                std::cout << ",";
+            }
+        }
+        std::cout << "#end" << std::endl;
+    }
+}
+
+// Print angular fluxes
+void Slab::PrintAngularFluxes()
+{
+    for( auto energy_it = energy_groups_.begin(); energy_it != energy_groups_.end(); energy_it++ )
+    {
+        std::cout << "#sn_angular_flux_group_" << *energy_it << "_ev" << std::endl;
+        for( auto cell_it = cells_.begin(); cell_it != cells_.end(); cell_it++ )
+        {
+            std::cout << cell_it->MidpointAngularFluxReference().at( *energy_it );
+        }
+        std::cout << "#end" << std::endl;
+    }
+}
+
+// Print angular fluxes
+void Slab::AdjPrintAngularFluxes()
+{
+    for( auto energy_it = energy_groups_.begin(); energy_it != energy_groups_.end(); energy_it++ )
+    {
+        std::cout << "#adj_sn_angular_flux_group_" << *energy_it << "_ev" << std::endl;
+        for( auto cell_it = cells_.begin(); cell_it != cells_.end(); cell_it++ )
+        {
+            std::cout << cell_it->AdjMidpointAngularFluxReference().at( *energy_it );
+        }
+        std::cout << "#end" << std::endl;
+    }
+}
+
+// Print neutron densities
+void Slab::PrintNeutronDensities()
+{
+    for( auto energy_it = energy_groups_.begin(); energy_it != energy_groups_.end(); energy_it++ )
+    {
+        std::cout << "#sn_neutron_density_group_" << *energy_it << "_ev" << std::endl;
+        for( auto cell_it = cells_.begin(); cell_it != cells_.end(); cell_it++ )
+        {
+            std::cout << cell_it->MidpointAngularFluxReference().ScalarFluxReference().at( *energy_it ) / speeds_.at( *energy_it );
+            cell_it == prev( cells_.end() ) ? std::cout << std::endl : std::cout << ",";
+        }
+        std::cout << "#end" << std::endl;
+    }
+}
+
+// [Adjoint] Print neutron densities
+void Slab::AdjPrintNeutronDensities()
+{
+    for( auto energy_it = energy_groups_.begin(); energy_it != energy_groups_.end(); energy_it++ )
+    {
+        std::cout << "#adj_sn_neutron_density_group_" << *energy_it << "_ev" << std::endl;
+        for( auto cell_it = cells_.begin(); cell_it != cells_.end(); cell_it++ )
+        {
+            std::cout << cell_it->AdjMidpointAngularFluxReference().ScalarFluxReference().at( *energy_it ) / speeds_.at( *energy_it );
+            cell_it == prev( cells_.end() ) ? std::cout << std::endl : std::cout << ",";
+        }
+        std::cout << "#end" << std::endl;
+    }
 }
 
 // Friend functions //
