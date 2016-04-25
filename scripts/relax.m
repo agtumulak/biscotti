@@ -1,29 +1,33 @@
-function [ ] = relax( F, x0, N, ref )
-%UNTITLED3 Summary of this function goes here
+function [S] = relax( F, fgws, N, source )
+%RELAX Plots relaxation of matrix F
 %   Detailed explanation goes here
-F = F';
-startval = 0.102;
-endval = 0.941;
-colorspecs = [linspace(startval,endval,N+1)' linspace(startval,startval,N+1)' linspace(endval,startval,N+1)'];
 
-clf
+% Get k-eigenvalue
+[V, D] = eig(F);
+k = D(1,1);
+
+% Get asymptotic solution
+x_inf = (F/k)^1000 * fgws;
+
+
+% Plot final value
+plot( source * sum(x_inf) / sum(source) );
 hold on
 grid on
 
-[V D] = eig(F);
-k = D(1,1);
-S = []
+% Initialize total source S vector
+S = [];
 
-x = x0;
+x = fgws;
 for n = 0:N
-    plot( x, 'Color', colorspecs(n+1,:) );
+    plot( x );
     prevsum = sum(x);
     x = F * x / k;
-    S = [S abs(prevsum - sum(x))];
+    S = [S abs(prevsum - sum(x))/prevsum];
 end
 
-plot( ref * prevsum / sum(ref), 'k:' );
-title('Fixed source in cell adjoint weighted k eigenvalue flux')
-ylim([0 0.1*max(ref)]);
+figure
+semilogy(S,'x')
+grid on
 
 end
