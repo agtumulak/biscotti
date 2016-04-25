@@ -87,7 +87,7 @@ void Slab::FissionMatrixSolve()
                 } );
         // External source is divided by cell width to ensure "one" source
         // neutron is produced
-        j_it->SetExternalSource( j_it->MaterialReference().FissChi() * j_it->Width() );
+        j_it->SetExternalSource( j_it->MaterialReference().FissChi() / j_it->Width() );
         cur_k_ = std::numeric_limits<double>::max();
         FixedSourceSolve();
         // Calculate number of neutrons produced in each cell
