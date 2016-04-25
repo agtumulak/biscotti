@@ -145,9 +145,10 @@ void Slab::FirstGenerationWeightedSourceSolve()
             // fixed source solution
             for( auto in_it = cells_.begin(); in_it != cells_.end(); in_it++ )
             {
-                result.back() += Dot(
-                        in_it->AdjMidpointAngularFluxReference().ScalarFluxReference(),
-                        in_it->MidpointAngularFluxReference().ScalarFluxReference() / speeds_ );
+                AngularFlux AdjWeightedAngularFlux = in_it->MidpointAngularFluxReference();
+                AdjWeightedAngularFlux.WeightBy( in_it->AdjMidpointAngularFluxReference() );
+                GroupDependent AdjWeightedScalarFlux = AdjWeightedAngularFlux.ScalarFluxReference() / speeds_;
+                result.back() += AdjWeightedScalarFlux.GroupSum();
             }
         }
         // Unset response of current cell to fission cross section

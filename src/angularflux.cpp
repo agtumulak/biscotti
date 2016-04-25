@@ -87,6 +87,23 @@ void AngularFlux::AdjRightReflectBoundary()
     scl_flux_updated_ = false;
 }
 
+// Weight all values by another angular flux
+void AngularFlux::WeightBy( const AngularFlux &weight )
+{
+    std::map<double, AngleDependent>::iterator flux_energy_it = slowest();
+    std::map<double, AngleDependent>::const_iterator weight_energy_it = weight.slowest();
+    for( ; flux_energy_it != std::next( fastest() ); flux_energy_it++, weight_energy_it++ )
+    {
+        std::map<double,std::pair<double,double>>::iterator flux_angle_it = flux_energy_it->second.neg_begin();
+        std::map<double,std::pair<double,double>>::const_iterator weight_angle_it = weight_energy_it->second.neg_begin();
+        for( ; flux_angle_it != flux_energy_it->second.pos_end(); flux_angle_it++, weight_angle_it++ )
+        {
+            flux_angle_it->second.second *= weight_angle_it->second.second;
+        }
+    }
+    scl_flux_updated_ = false;
+}
+
 // Update scalar flux
 void AngularFlux::UpdateScalarFlux()
 {

@@ -35,6 +35,9 @@ class AngularFlux
         // [Adjoint] Reflect boundary (reflecting on right side, negative->positive)
         void AdjRightReflectBoundary();
 
+        // Weight all values by another angular flux
+        void WeightBy( const AngularFlux &weight );
+
         // Accessors and mutators //
 
         // Return const reference to AngleDependent value at energy
