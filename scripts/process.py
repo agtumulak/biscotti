@@ -32,7 +32,12 @@ adj_fiss_matrix_start = '#adj_fission_matrix'
 fgws_start = '#first_generation_weighted_source'
 neutron_density_start = '#sn_neutron_density'
 adj_neutron_density_start = '#adj_sn_neutron_density'
+fission_source_start  = '#fission_source'
 end_token = '#end'
+
+# Form tuples
+one_d_data = tuple( [ scalar_start, adj_scalar_start, fgws_start, neutron_density_start, adj_neutron_density_start, fission_source_start ] )
+two_d_data = tuple( [ angular_start, adj_angular_start, fiss_matrix_start, adj_fiss_matrix_start ] )
 
 # Initialize dictionary
 matlab_dictionary = {}
@@ -41,11 +46,11 @@ matlab_dictionary = {}
 with open( csvfilename, 'r') as rawdata:
     for line in rawdata:
         # 1D data
-        if line.startswith( scalar_start ) or line.startswith( adj_scalar_start ) or line.startswith( fgws_start ) or line.startswith( neutron_density_start ) or line.startswith( adj_neutron_density_start ):
+        if line.startswith( one_d_data ):
             # Save to dictionary
             matlab_dictionary[ ReadName(line) ] = StringToArray( rawdata.next() )
         # 2D data
-        if line.startswith( angular_start ) or line.startswith( adj_angular_start ) or line.startswith( fiss_matrix_start ) or line.startswith( adj_fiss_matrix_start ):
+        if line.startswith( two_d_data ):
             # Read name, strip endline, remove invalid characters
             name = ReadName(line);
             # Read angular flux and store in array

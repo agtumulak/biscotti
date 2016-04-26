@@ -32,6 +32,9 @@ class Slab
         // Solve for first generation weighted source (FGWS)
         void FirstGenerationWeightedSourceSolve();
 
+        // Solve for the fission source
+        void FissionSourceSolve();
+
         // Friend functions //
  
         // Overload operator<<()

@@ -159,7 +159,20 @@ void Slab::FirstGenerationWeightedSourceSolve()
     for( auto it = result.begin(); it != result.end(); it++ )
     {
         std::cout << *it;
-        it == prev( result.end() ) ? std::cout << std::endl : std::cout<< ",";
+        it == std::prev( result.end() ) ? std::cout << std::endl : std::cout << ",";
+    }
+    std::cout << "#end" << std::endl;
+}
+
+// Solve for the fission source
+void Slab::FissionSourceSolve()
+{
+    std::cout << "#fission_source" << std::endl;
+    for( auto it = cells_.begin(); it != cells_.end(); it++ )
+    {
+        std::cout << Dot( it->MaterialReference().FissNu() * it->MaterialReference().MacroFissXsec(),
+                it->MidpointAngularFluxReference().ScalarFluxReference() );
+        it == std::prev( cells_.end() ) ? std::cout << std::endl : std::cout << ",";
     }
     std::cout << "#end" << std::endl;
 }
