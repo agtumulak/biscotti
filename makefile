@@ -2,7 +2,7 @@
 # Aaron G. Tumulak
 
 # Set options
-CC :=clang++ #--analyze -Qunused-arguments
+CC :=g++ #--analyze -Qunused-arguments
 CFLAGS :=-std=c++11 -Wall #-DNDEBUG
 LFLAGS :=
 TARGETNAME :=biscotti
@@ -23,14 +23,19 @@ $(BINDIR)/$(TARGETNAME): $(OBJECTS)
 
 -include $(OBJECTS:.o=.d)
 
-$(BUILDDIR)/%.o: $(SRCDIR)/%.cpp
+$(BUILDDIR)/%.o: $(SRCDIR)/%.cpp setup
 	@echo "Creating object file $@..."
 	$(CC) $(CFLAGS) -c -o $@ $<
 	$(CC) $(CFLAGS) -MM $< -MT '$@' > $(@:.o=.d)
 
+setup:
+	@echo "Creating directories..."
+	mkdir -p $(BUILDDIR)
+	mkdir -p $(BINDIR)
+
 clean:
 	@echo "Cleaning..."
-	rm -rf $(BUILDDIR)/* $(BINDIR)/*
+	rm -rf $(BUILDDIR) $(BINDIR)
 	@echo "Done!"
 
-.PHONY: clean
+.PHONY: clean setup
