@@ -11,7 +11,7 @@
 #include "segment.hpp"
 
 // Default constructor
-Segment::Segment( Material material, double width, int num_cells, double scl_flux_guess, double adj_scl_flux_guess ):
+Segment::Segment( Material material, double width, unsigned int num_cells, double scl_flux_guess, double adj_scl_flux_guess ):
     material_( material ),
     width_( width ),
     num_cells_( num_cells ),
