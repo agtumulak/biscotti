@@ -20,3 +20,7 @@ The only dependency for building and running `biscotti` is `gcc` version 4.2.1. 
     `make`
 
 At this point, you should have the `biscotti` binary under the `bin/` directory. To execute it, do `./bin/biscotti`. It you see the calculation running, you have built `biscotti`.
+
+## Creating a Problem
+
+Problems are created by modifying the main source file `src/biscotti.cpp`. View the source file comments to see how to set up a problem.

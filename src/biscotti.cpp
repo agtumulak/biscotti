@@ -12,8 +12,13 @@
 
 int main()
 {
-    // Create settings //
+    // Problem settings //
+
+    // Create a settings object called settings_1. This object will be passed
+    // into a Slab object for use.
     Settings settings_1;
+
+    // Set the settings by using the Setting object's member functions
     settings_1.SetLeftBC( Settings::VACUUM );
     settings_1.SetKGuess( 1.0 );
     settings_1.AdjSetKGuess( 1.0 );
@@ -28,8 +33,13 @@ int main()
     double thermal = 0.025;
     double fast = 1.0e6;
 
-    // Create reflector material
+    // Create the materials that will be used in the problem. There is no need
+    // to ever create two materials that have the same exact properties.
+
+    // Create a Material object called reflector
     Material reflector;
+
+    // Set the properties of the reflector object.
 
     // Absorption
     reflector.SetMacroAbsXsec( fast, 0.025 );
@@ -49,11 +59,17 @@ int main()
     reflector.SetFissChi( fast, 1.0 );
     reflector.SetFissChi( thermal, 0.0 );
 
+    // If solving a fixed-source problem, specify an external source.
+    // Otherwise, leave these values at 0.0
+
     // External source
     reflector.SetExtSource( fast, 0.0 );
     reflector.SetExtSource( thermal, 0.0 );
     reflector.AdjSetExtSource( fast, 0.0 );
     reflector.AdjSetExtSource( thermal, 0.0 );
+
+    // Create another material for the core. The construction of each new
+    // material is similar. You can create as many unique materials as needed.
 
     // Create core material //
     Material core;
@@ -82,15 +98,27 @@ int main()
     core.AdjSetExtSource( fast, 0.0 );
     core.AdjSetExtSource( thermal, 0.0 );
 
+    // With the materials defined, you now define a 1-D slab. Each slab is made
+    // up of sections. Each section is assigned a material, a width, a number
+    // of cells, an initial guess for the scalar flux, and an initial guess for
+    // the adjoint scalar flux. The function AddToEnd() stacks new sections to
+    // the end of the slab. You can think of this as literally stacking
+    // sections of a slab reactor.
+
     // Create layout //
     Layout layout_1;
     layout_1.AddToEnd( reflector, 25.0, 250, 1.0, 1.0 );
     layout_1.AddToEnd( core, 30.0, 6000, 1.0, 1.0 );
 
-    // Create slab and run //
+    // With the Layout object created, initialize a Slab object using the
+    // Settings object and the Layout object you have created.
     Slab slab_1( settings_1, layout_1 );
+
+    // The Slab object drives the calculations you want to perform. To perform
+    // a k-eigenvalue solve, you run the EigenvalueSolve() method on the slab.
     slab_1.EigenvalueSolve();
-	slab_1.FissionSourceSolve();
-    slab_1.FirstGenerationWeightedSourceSolve();
-    slab_1.FissionMatrixSolve();
+
+	// slab_1.FissionSourceSolve();
+    // slab_1.FirstGenerationWeightedSourceSolve();
+    // slab_1.FissionMatrixSolve();
 }
