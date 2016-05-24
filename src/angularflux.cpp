@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <iostream>
 
-// sn-solver includes
+// biscotti includes
 #include "angledependent.hpp"
 #include "angularflux.hpp"
 #include "groupdependent.hpp"

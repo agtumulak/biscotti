@@ -9,7 +9,7 @@
 #include <numeric>
 #include <vector>
 
-// sn-solver includes
+// biscotti includes
 #include "cell.hpp"
 #include "groupdependent.hpp"
 #include "layout.hpp"

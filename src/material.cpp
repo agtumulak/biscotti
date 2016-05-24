@@ -4,7 +4,7 @@
 // std includes
 #include <iostream>
 
-// sn-solver includes
+// biscotti includes
 #include "material.hpp"
 
 // Default constructor

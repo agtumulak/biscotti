@@ -8,7 +8,7 @@
 #include <vector>
 #include <set>
 
-// sn-solver includes
+// biscotti includes
 #include "cell.hpp"
 #include "layout.hpp"
 #include "settings.hpp"

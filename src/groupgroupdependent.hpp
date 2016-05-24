@@ -7,7 +7,7 @@
 #include <iostream>
 #include <map>
 
-// sn-solver includes
+// biscotti includes
 #include "groupdependent.hpp"
 
 class GroupGroupDependent

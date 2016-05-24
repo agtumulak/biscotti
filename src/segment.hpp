@@ -7,7 +7,7 @@
 #include <iostream>
 #include <map>
 
-// sn-solver includes
+// biscotti includes
 #include "angledependent.hpp"
 #include "material.hpp"
 #include "settings.hpp"
@@ -17,7 +17,7 @@ class Segment
     public:
 
         // Default constructor
-        Segment( Material material, double width, int num_cells, double scl_flux_guess, double adj_scl_flux_guess );
+        Segment( Material material, double width, unsigned int num_cells, double scl_flux_guess, double adj_scl_flux_guess );
 
         // Accessors and mutators //
 
@@ -53,7 +53,7 @@ class Segment
         const double width_;
 
         // Number of equally spaced cells
-        const int num_cells_;
+        const unsigned int num_cells_;
 
         // Cell width
         const double cell_width_;

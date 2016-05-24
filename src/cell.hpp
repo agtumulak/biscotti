@@ -7,7 +7,7 @@
 #include <iostream>
 #include <map>
 
-// sn-solver includes
+// biscotti includes
 #include "angularflux.hpp"
 #include "segment.hpp"
 #include "settings.hpp"

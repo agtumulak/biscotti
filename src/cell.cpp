@@ -7,7 +7,7 @@
 #include <iostream>
 #include <vector>
 
-// sn-solver includes
+// biscotti includes
 #include "angularflux.hpp"
 #include "cell.hpp"
 

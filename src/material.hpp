@@ -6,7 +6,7 @@
 // std includes
 #include <iostream>
 
-// sn-solver includes
+// biscotti includes
 #include "groupdependent.hpp"
 #include "groupgroupdependent.hpp"
 

@@ -5,7 +5,7 @@
 #include <iostream>
 #include <map>
 
-// sn-solver includes
+// biscotti includes
 #include "angledependent.hpp"
 #include "material.hpp"
 #include "segment.hpp"

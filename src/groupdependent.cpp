@@ -8,7 +8,7 @@
 #include <numeric>
 #include <vector>
 
-// sn-solver includes
+// biscotti includes
 #include "groupdependent.hpp"
 
 // Default constructor

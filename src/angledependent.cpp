@@ -8,7 +8,7 @@
 #include <map>
 #include <numeric>
 
-// sn-solver includes
+// biscotti includes
 #include "angledependent.hpp"
 
 // Default constructor

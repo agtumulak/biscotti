@@ -6,7 +6,7 @@
 #include <vector>
 #include <numeric>
 
-// sn-solver includes
+// biscotti includes
 #include "groupgroupdependent.hpp"
 
 // Default constructor
