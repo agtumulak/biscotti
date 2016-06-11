@@ -2,6 +2,7 @@
 // Aaron G. Tumulak
 
 // std includes
+#include <algorithm>
 #include <cassert>
 #include <cmath>
 #include <map>
